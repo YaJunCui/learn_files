@@ -1,5 +1,8 @@
+//
 // Edit by cyj 2016-12-6
-// findËã·¨: <stl_algo.h> Ô´Âë
+//
+
+// findç®—æ³•: <stl_algo.h> æºç 
 #if 0
 template<class InputIterator, class T>
 InputIterator find(InputIterator first,
@@ -25,9 +28,9 @@ int main_3_1()
     const int arraySize = 7;
     int ia[arraySize] = { 0, 1, 2, 3, 4, 5, 6 };
 
-    vector<int> ivec(ia, ia + arraySize);         //¶¯Ì¬Êı×é
-    list<int> ilist(ia, ia + arraySize);          //Ë«ÏòÁĞ±í
-    deque<int> ideque(ia, ia + arraySize);        //Ë«Ïò¶ÓÁĞ
+    vector<int> ivec(ia, ia + arraySize);         //åŠ¨æ€æ•°ç»„
+    list<int> ilist(ia, ia + arraySize);          //åŒå‘åˆ—è¡¨
+    deque<int> ideque(ia, ia + arraySize);        //åŒå‘é˜Ÿåˆ—
 
     vector<int>::iterator it1 = find(ivec.begin(), ivec.end(), 4);
     if (it1 == ivec.end())
