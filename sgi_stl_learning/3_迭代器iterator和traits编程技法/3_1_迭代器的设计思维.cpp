@@ -20,7 +20,7 @@ InputIterator find(InputIterator first,
 
 using namespace std;
 
-int main()
+int main_3_1()
 {
     const int arraySize = 7;
     int ia[arraySize] = { 0, 1, 2, 3, 4, 5, 6 };
