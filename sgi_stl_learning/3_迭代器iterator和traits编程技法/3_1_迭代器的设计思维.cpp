@@ -1,7 +1,4 @@
-//
-// Edit by cyj 2016-12-6
-//
-
+// Edit by cyj 2016-12-06
 // find算法: <stl_algo.h> 源码
 #if 0
 template<class InputIterator, class T>
