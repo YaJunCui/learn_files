@@ -1,5 +1,8 @@
 // Edit by cyj 2016-12-14
 
+namespace cyj
+{
+
 template <typename T, typename Alloc = alloc>
 class vector
 {
@@ -75,10 +78,18 @@ public:
   iterator erase(iterator position)                   // 清除某位置上的元素
   {
     if(position + 1 != end())
-      copy(position + 1, end(), position);            //将后续元素往前移动
+      copy(position + 1, end(), position);            // 将后续元素往前移动
     --finish;
     destroy(finish);
     return position;
+  }
+
+  iterator erase(iterator first, iterator last)       // 清除[fisrt,last)上的元素
+  {
+    iterator i = copy(last, finish, first);
+    destroy(i, finish);
+    finish = finish - (last - first);
+    return first;
   }
 
   void resize(size_type new_size, const T& x)
@@ -91,6 +102,8 @@ public:
 
   void resize(size_type new_size) { resize(new_size, T()); }
   void clear() { erase(begin(), end()); }
+
+  void insert(iterator position, size_type n, const T& x);
 
 protected:
   // 配置空间并填满内容
@@ -146,3 +159,61 @@ void vector<T, Alloc>::insert_aux(iterator position, const T& x)
     end_of_storage = new_start + len;
   }
 }
+
+template <typename T, typename Alloc>
+void vector<T, Alloc>::insert(iterator position, size_type n, const T& x)
+{
+  if(n!=0)                        //当n!=0才进行操作
+  {
+    if(size_type(end_of_storage-end()) >= n)                    //备用空间大于等于“新增元素个数”
+    {
+      T x_copy = x;
+      iterator old_finish = finish;
+      const size_type elems_after = finish - position;            //计算插入点之后的现有元素个数
+      if(elems_after > n)                                           //插入点之后的元素个数 大于 新增元素个数  
+      {
+        uninitialized_copy(finish - n, finish, finish);
+        finish += n;                                                //调整水位
+        copy_backward(position, old_finish - n, old_finish);
+        fill(position, position + n, x_copy)
+      } 
+      else                                                          //插入点之后的元素个数 小于等于 新增元素个数
+      {
+        uninitialized_fill_n(finish, n-elems_after, x_copy);
+        finish += n - elems_after;                                  //调整水位       
+        uninitialized_copy(position, old_finish, finish);
+        finish += elems_after;                                      //调整水位
+        fill(position, elems_after, x_copy);
+      }
+    }
+    else                                                         //备用空间的大小 小于 新增元素的个数                                                       
+    {
+      const size_type old_size = size();
+      const size_type len = old_size != 0 ? 2 * old_size : 1;
+      try
+      {
+        iterator new_start = data_allocator::allocate(len);                //1、重新配置
+        iterator new_finish = new_start;
+
+        new_finish = uninitialized_copy(begin(), position, new_finish);    //2、移动数据
+        new_finish = uninitialized_fill_n(new_finish, n, x_copy);
+        new_finish = uninitialized_copy(position, finish, new_finish)；
+      }
+      catch(...)
+      {
+        destroy(new_start, new_finish);
+        data_allocator::deallocate(new_start, len);
+        throw;
+      }
+
+      destroy(start, finish);                                               //3、释放原来的空间
+      deallocate();
+
+      start = new_start;                                                    //调整水位标记
+      finish = new_finish;
+      end_of_storage = new_start + len;
+    }
+  }
+} 
+  
+} //namespace cyj
