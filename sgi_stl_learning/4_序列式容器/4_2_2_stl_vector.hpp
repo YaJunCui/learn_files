@@ -4,7 +4,7 @@ template <typename T, typename Alloc = alloc>
 class Vector
 {
 public:
-
+    int i;
 
 protected:
 
