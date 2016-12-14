@@ -101,3 +101,48 @@ protected:
     return result;
   }
 };
+
+template <typename T, class Alloc>
+void vector<T, Alloc>::insert_aux(iterator position, const T& x)
+{
+  if(finish != end_of_storage)                 //还有备用空间
+  {
+    construct(finish,*(finish-1));                              
+    ++finish;                                        //调整水位
+    T x_copy = x;
+    copy_backward(position, finish-2, finish-1);     //反向copy
+    *position = x_copy;
+  }
+  else                                        //无备用空间
+  {
+    const size_type old_size = size();
+    const size_type len = old_size !=0 ? 2 * old_size : 1;           //如果原大小为0，则配置为 1，否则配置为原来的 2 倍
+
+    iterator new_start = data_allocator::allocate(len);              //实际配置
+    iterator new_finish = new_start;
+
+    try
+    {
+      new_finish = uninitialized_fill_n(start, position, new_start);         //将 vector 内容的[start, position)拷贝到新vector
+      construct(new_finish, x);                                              //为新元素设置为初值 x
+      ++new_finish;
+      new_finish = uninitialized_fill_n(position, finish, new_finish);       //将 vector 内容的[position, finish)拷贝到新vector
+    }
+    catch(...)
+    {
+      // "commit or rollback" semantics
+      destroy(new_start, new_finish);
+      data_allocator::deallocate(new_start, len);
+      throw;
+    }
+
+    //析构并释放原来 vector
+    destroy(begin(), end());
+    deallocate();
+
+    //调整迭代器，指向新 vector
+    start = new_start;
+    finish = new_finish;
+    end_of_storage = new_start + len;
+  }
+}
