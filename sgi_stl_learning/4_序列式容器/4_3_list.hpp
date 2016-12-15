@@ -69,11 +69,43 @@ class list
 {
 protected:
   typedef __list_node<T>  list_node;
-  typedef simple_alloc<list_node, Alloc>  list_node_allocator; //专属的空间配置器，每次配置一个节点的大小
+  typedef simple_alloc<list_node, Alloc>  list_node_allocator;  //专属的空间配置器，每次配置一个节点的大小
+
+  link_type get_node()                                          // 配置一个节点
+  { 
+    return list_node_allocator::allocate();
+  } 
+
+  void  put_node(link_type  p)                                  //释放一个节点
+  { 
+    list_node_allocator::deallocate(p); 
+  }
+
+  link_type create_node(const T& x)                             //产生一个节点，带元素值
+  {
+    link_type p = get_node();
+    construct(&p->data, x);
+    return p;
+  }
+
+  void destroy_node(link_type p)                                //销毁一个节点
+  {
+    destory(&p->data);
+    put_node(p);
+  }
+
+  void empty_initialize()
+  {
+    node = get_node();                                            // 配置一个空节点，令 node 指向它
+    node->next = node;                                            // 令 node 头尾都指向自己，不设置元素值
+    node->prev = node;
+  }
 
 public:
   typedef list_node*      link_type;
   typedef size_t          size_type;
+
+  list()  { empty_initialize(); }                               //产生一个空链表
 
   iterator  begin() { return (link_type)((*node).next); }
   iterator  end() { return node(); }                            //最后一个节点是空白节点，即 node
