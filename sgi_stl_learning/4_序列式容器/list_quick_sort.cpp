@@ -34,7 +34,7 @@ void list_sort(list<int>& ilist)
 
     for (int i = 1; i < fill; ++i)                          // 逐级获取结果
         counter[i].merge(counter[i - 1]);
-    ilist.swap(counter[fill - 1]);
+    ilist.swap(counter[fill - 1]);                          // 保存最终结果
 }
 
 int main_list_sort()
