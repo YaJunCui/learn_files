@@ -64,4 +64,32 @@ struct __list_iterator
   }
 };
 
+template <class T, typename Alloc = alloc>
+class list
+{
+protected:
+  typedef __list_node<T>  list_node;
+  typedef simple_alloc<list_node, Alloc>  list_node_allocator; //专属的空间配置器，每次配置一个节点的大小
+
+public:
+  typedef list_node*      link_type;
+  typedef size_t          size_type;
+
+  iterator  begin() { return (link_type)((*node).next); }
+  iterator  end() { return node(); }                            //最后一个节点是空白节点，即 node
+  bool empty() { return node->next == node; }
+  size_type size() const 
+  {
+    size_type result = 0;
+    distance(begin(), end(), result);
+    return result;
+  }
+
+  reference front() { return *begin(); }                        // 取头节点的内容
+  reference back()  { return *(--end()); }                      // 取尾节点的内容
+
+protected:
+  link_type node;
+};
+
 } // namespace cyj
