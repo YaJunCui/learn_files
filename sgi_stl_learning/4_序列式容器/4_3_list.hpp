@@ -117,11 +117,84 @@ public:
     return result;
   }
 
-  reference front() { return *begin(); }                        // 取头节点的内容
-  reference back()  { return *(--end()); }                      // 取尾节点的内容
+  reference front() { return *begin(); }                        //取头节点的内容
+  reference back()  { return *(--end()); }                      //取尾节点的内容
+
+  iterator insert(iterator position, const T& x)
+  {
+    link_type tmp = create_node(x);
+    tmp->next = position.node;                                    //迭代器中的node
+    tmp->prev = position.node->prev;           
+    (link_type(position.node->prev))->next = tmp;
+    position.node->prev = tmp;
+    return tmp;
+  }
+
+  void push_front(const T& x) { insert(begin(),x); }            //头插法
+  void push_back(const T& x)  { insert(end(), x); }             //尾插法
+
+  iterator erase(iterator position)                             //移除迭代器position所指节点
+  {
+    link_type next_node = link_type(position.node->next);
+    link_type prev_node = link_type(position.node->prev);
+    next_node->prev = prev_node;
+    prev_node->next = next_node;
+    destroy_node(position);
+    return iterator(next_node);
+  }
+
+  void pop_front()  { erase(begin()); }                         //移除头节点
+  void pop_back()                                               //移除尾节点
+  {
+    iterator tmp = end();
+    erase(--tmp);
+  }
+
+  void clear()                                                  //清除所有节点
+  {
+    link_type cur = (link_type)node->next;                      //begin()
+    while(cur != node)
+    {
+      link_type tmp = cur;
+      cur = (link_type)cur->next;
+      destroy_node(cur);
+    }
+    node->next = node;                                          //恢复node原始状态
+    node->prev = node;
+  }
+
+  void remove(const T& value)                                   //将值为value的所有元素移除
+  {
+    iterator first = begin();
+    iterator last = end();
+    while(first != end)
+    {
+      iterator next = first;
+      ++next;
+      if(*first == value)                                       //找到就移除
+        erase(first);
+      first = next;
+    }
+  }
+
+  void unique()
+  {
+    iterator first = begin();
+    iterator last = end();
+    if(first == last) return;                                   //空链表，什么都不做
+    iterator  next = first;
+    while(++next != last)
+    {
+      if(*first == *next)
+        erase(next);
+      else
+        first = next;
+      next = first;                                             //修正区段范围
+    }
+  }
 
 protected:
-  link_type node;
+  link_type node;                                               //只有一个指针，便可表示整个环状双向链表
 };
 
 } // namespace cyj
