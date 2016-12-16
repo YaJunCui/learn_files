@@ -199,6 +199,11 @@ public:                                         //Basic accessors
   {
     return size_type(-1);
   }
+
+  bool empty() const
+  {
+    return finish == start;
+  }
 };
 
 } //namespace cyj
