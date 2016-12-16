@@ -150,15 +150,55 @@ public:                                         //Basic types
   typedef value_type*   pointer;
   typedef size_t        size_type;
 
-public:
+public:                                         //Iterator
   typedef __deque_iterator<T, T&, T*,BufSiz>  iterator;
 
-protected:
+protected:                                      //Internal typedefs
   typedef pointer*      map_pointer;                //元素指针的指针
 
 protected:                                      //Data members
+  iterator  start;                                  //第一个节点
+  iterator  finish;                                 //最后一个节点
   map_pointer map;                                  //map是连续空间，其内每个元素都是一个指针，指向一块缓冲区
   size_type map_size;                               //map内可容纳多少指针
-}
+
+public:                                         //Basic accessors
+  iterator begin()  
+  {
+    return start;
+  }
+
+  iterator end()
+  {
+    return finish;
+  }
+
+  reference operator[](size_type n)
+  {
+    return start[difference_type(n)];
+  }
+
+  reference front()
+  {
+    return *start;
+  }
+
+  reference back()
+  {
+    iterator tmp = finish;
+    --tmp;
+    return *tmp;
+  }
+
+  size_type size() const
+  {
+    return finish - start;
+  }
+
+  size_type max_size() const 
+  {
+    return size_type(-1);
+  }
+};
 
 } //namespace cyj
