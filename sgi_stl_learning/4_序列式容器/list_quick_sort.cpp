@@ -9,14 +9,15 @@ void print_list(const list<int>& ilist)
     cout << endl;
 }
 
-void list_sort(list<int>& ilist)
+template <typename T>
+void list_sort(list<T>& ilist)
 {
-    if (ilist.size() <= 1)                 //个数小于1不需要排序
+    if (ilist.size() <= 1)                   //个数小于1不需要排序
         return;
 
-    list<int> carry;                       //保存下层merge返回的结果
-    list<int> counter[64];                 //模拟merge sort使用的堆栈，保存部分有序的list,64是最大的递归调用层次
-    int fill = 0;                          //指示堆栈的层次
+    list<T> carry;                           //保存下层merge返回的结果
+    list<T> counter[64];                     //模拟merge sort使用的堆栈，保存部分有序的list,64是最大的递归调用层次
+    int fill = 0;                            //指示堆栈的层次
 
     while (!ilist.empty())
     {
