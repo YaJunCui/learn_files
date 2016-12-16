@@ -60,8 +60,101 @@ struct __deque_iterator
   reference operator*() const { return *cur; }
   pointer operator->() const { return &(operator*()); }
 
-  difference_type
+  difference_type operator-(const self& x) const
+  {
+    return difference_type(buffer_size())*(node - x.node -1) + 
+      (cur - first) + (x.last - x.cur);
+  }
 
+  self& operator++()                                        //前向++
+  {
+    ++cur;
+    if(cur == last)                                           //已经达到缓冲区尾端
+    {
+      set_node(node+1);
+      cur = first;
+    }
+    return *this;
+  }
+
+  self operator++(int)                                      //后置++
+  {
+    self tmp = *this;
+    ++*this;
+    return tmp;
+  }
+
+  self& operator--()                                        //前置--
+  {
+    if(cur == first)                                          //已经到达缓冲区头端                     
+    {
+      set_node(node-1);
+      cur = last;
+    }
+    --cur;
+    return *this;
+  }
+
+  self operator--(int)
+  {
+    self tmp = *this;
+    --*this;
+    return tmp;
+  }
+
+  //实现迭代器可以直接跳跃 n 个距离
+  self& operator+=(difference_type n)
+  {
+    difference_type offset = n + (cur - first);
+    if(offset >= 0 && offset <= difference_type(buffer_size())) //目前位置在同一缓冲区
+      cur += n;
+    else
+    {
+      difference_type node_offset = 
+        offset > 0 ? offset / difference_type(buffer_size())
+          : -difference_type((-offset-1) / buffer_size()) - 1;
+      set_node(node + node_offset);                            //切换至正确的缓冲区
+      cur = first + (offset - node_offset * difference_type(buffer_size()));
+    }
+    return *this;
+  }
+
+  self& operator+(difference_type n)
+  {
+    self tmp = *this;
+    return tmp += n;
+  }
+
+  self& operator-=(difference_type n)
+  {
+    return *this+= -n;
+  }
+
+  self operator-(difference_type n)
+  {
+    self tmp = *this;
+    return tmp -= n;
+  }
+
+  reference operator[](difference_type n) const
+  {
+    return *(*this + n);
+  }
+
+  bool operator==(const self& rhs) const
+  {
+    return cur == rhs.cur;
+  }
+
+  bool  operator!=(const self& rhs) const
+  {
+    return !(*this == rhs);
+  }
+
+  bool operator<(const self& rhs) const
+  {
+    return (node == rhs.node) ? (cur < rhs.cur) : (node < rhs.node);
+  }
 };
 
 } //namespace cyj
