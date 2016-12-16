@@ -13,7 +13,7 @@ public:
   typedef value_type* iterator;
   typedef value_type& reference;
   typedef size_t      size_type;
-  typedef ptrdiff_t   difference_size;
+  typedef ptrdiff_t   difference_type;
 
 protected:
   // simple_alloc 是 SGI STL 的空间配置器

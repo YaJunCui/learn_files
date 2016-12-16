@@ -40,7 +40,7 @@ struct __deque_iterator
   typedef T                           value_type;           // 2         
   typedef Ptr                         pointer;              // 3      
   typedef Ref                         reference;            // 4        
-  typedef ptrdiff_t                   difference_size;      // 5              
+  typedef ptrdiff_t                   difference_type;      // 5              
   typedef size_t                      size_type;
   typedef T**                         map_iterator;
 
@@ -50,5 +50,18 @@ struct __deque_iterator
   T*  last;                                                 //缓冲区的尾
   map_pointer node;                                         //指向管控中心
 
+  void set_node(map_pointer new_node)                       //跳到下一个缓冲区
+  {
+    node = new_node;
+    first = *new_node;
+    last = first + difference_type(buffer_size());
+  }
+
+  reference operator*() const { return *cur; }
+  pointer operator->() const { return &(operator*()); }
+
+  difference_type
+
 };
+
 } //namespace cyj
