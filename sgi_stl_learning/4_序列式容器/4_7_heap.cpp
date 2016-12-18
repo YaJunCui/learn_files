@@ -19,9 +19,9 @@ inline void __push_heap(RandomAccessIterator first,
                         T value)
 {
   Distance parentIndex = (curIndex - 1) / 2;
-  while (curIndex > topIndex && *(first + parentIndex) < value)         //未到顶端，且父节点小于新值，不符合heap，需要调整
+  while (curIndex > topIndex && *(first + parentIndex) < value)          //未到顶端，且父节点小于新值，不符合heap，需要调整
   {
-    *(first + curIndex) = *(first + parentIndex);                      //令当前索引的值为父值
+    *(first + curIndex) = *(first + parentIndex);                        //令当前索引的值为父值
     curIndex = parentIndex;
     parentIndex = (curIndex - 1) / 2;
   } //持续到顶端，或满足heap的次序特性为止
