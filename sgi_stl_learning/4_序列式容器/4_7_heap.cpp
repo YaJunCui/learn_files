@@ -100,6 +100,33 @@ inline void pop_heap(RandomAccessIterator first, RandomAccessIterator last)
   __pop_heap(first, last - 1, last - 1, *(last - 1));
 }
 
+template <typename RandomAccessIterator>
+void sort_heap(RandomAccessIterator first,
+               RandomAccessIterator last)
+{
+  while (last - first > 1)               
+    pop_heap(first, last--);               //每执行pop_heap()一次，操作范围退缩一格
+}
+
+
+template <typename RandomAccessIterator>
+inline void make_heap(RandomAccessIterator first,
+                      RandomAccessIterator last)
+{
+  typedef typename iterator_traits<RandomAccessIterator>::difference_type Distance;
+
+  if (last - first < 2) return;
+  Distance len = last - first;
+  Distance parent = (len - 2) / 2;
+
+  while (true)
+  {
+    __adjust_heap(first, parent, len, *(first + parent));
+    if (parent == 0) break;
+    --parent;
+  }
+}
+
 int main()
 {
   //vector<int> ivec{ 10, 8, 9, 6, 7, 10 };
@@ -111,10 +138,14 @@ int main()
   //pop_heap(ivec.begin(), ivec.end());
   //print_vec(ivec);
 
-  vector<int> ivec{ 10, 8, 9, 6, 7,8,7 };
+  //vector<int> ivec{ 10, 8, 9, 6, 7, 8,7 };
+  vector<int> ivec{ 10, 8, 6,9, 7, 7,8 };
 
   print_vec(ivec);
-  pop_heap(ivec.begin(), ivec.end());
+  make_heap(ivec.begin(), ivec.end());
+
+  print_vec(ivec);
+  sort_heap(ivec.begin(), ivec.end());
   print_vec(ivec);
 
   return 0;
