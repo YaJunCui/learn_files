@@ -86,9 +86,9 @@ inline void __adjust_heap(RandomAccessIterator first,
 
 template <typename RandomAccessIterator, typename T>
 inline void __pop_heap(RandomAccessIterator first,
-  RandomAccessIterator last,
-  RandomAccessIterator result,
-  T value)
+                       RandomAccessIterator last,
+                       RandomAccessIterator result,
+                       T value)
 {
   *result = *first;                                      //尾部元素设置为首值
   __adjust_heap(first, 0, last - first, value);
