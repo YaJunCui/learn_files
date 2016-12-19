@@ -31,5 +31,5 @@ template <typename Value>
 struct __rb_tree_node : public __rb_tree_node_base
 {
   typedef __rb_tree_node<Value>*  link_type;
-  Value value_field;                                      //节点值
+  Value value_field;                                       //节点值
 };
