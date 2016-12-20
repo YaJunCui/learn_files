@@ -90,3 +90,41 @@ struct __rb_tree_base_iterator
     }
   }
 };
+
+//RB-tree的正规迭代器
+template <class Value, class Ref, class Ptr>
+struct __rb_tree_iterator : public __rb_tree_base_iterator
+{
+  typedef Value                 value_type;
+  typedef Ref                   reference;
+  typedef Ptr                   pointer;
+  typedef __rb_tree_iterator<Value, Value&, Value*>                   iterator;
+  typedef __rb_tree_iterator<Value, const Value&, const Value*>       const_iterator;
+  typedef __rb_tree_iterator<Value, Ref, Ptr>                         self;
+  typedef __rb_tree_node<Value>*                                      link_type;
+
+  __rb_tree_iterator() {}
+  __rb_tree_iterator(link_type x) { node = x; }
+  __rb_tree_iterator(const iterator& it) { node = it.node; }
+
+  reference operator*() const { return link_type(node)->value_field; }
+#ifndef __SGI_STL_NO_ARROW_OPERATOR
+  pointer operator->() const { return &(operator*()); }
+#endif // !__SGI_STL_NO_ARROW_OPERATOR
+
+  self& operator++() { increment(); return *this; }
+  self operator++(int)
+  {
+    self tmp = *this;
+    ++*this;
+    return tmp;
+  }
+
+  self& operator--(){ decrement(); return *this; }
+  self operator--(int)
+  {
+    self tmp = *this;
+    --*this;
+    return tmp;
+  }
+};
