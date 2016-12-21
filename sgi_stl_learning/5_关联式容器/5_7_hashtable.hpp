@@ -1,11 +1,18 @@
 ﻿// Edit bu cyj 2016-12-20
 
+#include <vector>
+using std::vector;
+
 template <typename Value>                                     //hash节点定义
 struct __hashtable_node
 {
   __hashtable_node* next;
   Value val;
 };
+
+template <class Value, class Key, class HashFcn,
+          class ExtractKey, class EqualKey, class Alloc=alloc>
+class hashtable;
 
 template <class Value, class Key, class HashFcn,
           class ExtractKey, class EqualKey, class Alloc>
@@ -64,3 +71,27 @@ __hashtable_iterator<V, K, HF, ExK, EqK, A>::operator++(int)
   ++*this;
   return tmp;
 }
+
+template <class Value, class Key, class HashFcn,
+          class ExtractKey, class EqualKey, class Alloc>
+class hashtable
+{
+public:
+  typedef HashFcn         hasher;
+  typedef EqualKey        key_equal;                //判断键值是否相等
+  typedef size_t          size_type;
+
+private:
+  hasher  hash;
+  key_equal equals;
+  ExtractKey  get_key;
+
+  typedef __hashtable_node<Value> node;
+  typedef simple_alloc<node, Alloc> node_allocator;
+
+  vector<node*, Alloc> buckets;                     //以vector完成
+  size_type num_elements;
+
+public:
+  size_type bucket_count() const { return buckets.size(); } //桶的个数
+};
