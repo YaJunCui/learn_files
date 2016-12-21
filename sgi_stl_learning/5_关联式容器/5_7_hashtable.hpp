@@ -29,4 +29,38 @@ struct __hashtable_iterator
 
   __hashtable_iterator(node* n, hashtable* tab) :cur(n), ht(tab){}
   __hashtable_iterator(){}
+
+  reference operator*() const { return cur->val; }
+  pointer operator->() const { return &(operator*()); }
+  iterator& operator++();
+  iterator operator++(int);
+
+  bool operator==(const iterator& it) const { return cur == it.cur; }
+  bool operator!=(const iterator& it) const { return cur != it.cur; }
 };
+
+template <class V, class K, class HF, class ExK, class EqK, class A>
+__hashtable_iterator<V, K, HF, ExK, EqK, A>&
+__hashtable_iterator<V, K, HF, ExK, EqK, A>::operator++()
+{
+  const node* old = cur;
+  cur = cur->next;                                          //如果存在，就是它
+  if (!cur)
+  {
+    size_type bucket = ht->bkt_num(old->val);
+    while (!cur && ++bucket < ht->buckets.size())           //注意，operator++
+    {
+      cur = ht->buckets[bucket];
+    }
+  }
+  return *this;
+}
+
+template <class V, class K, class HF, class ExK, class EqK, class A>
+__hashtable_iterator<V, K, HF, ExK, EqK, A>&
+__hashtable_iterator<V, K, HF, ExK, EqK, A>::operator++(int)
+{
+  iterator tmp = *this;
+  ++*this;
+  return tmp;
+}
