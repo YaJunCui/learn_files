@@ -1,9 +1,8 @@
 # 忽略的文件夹
 ipch/
+.vscode/
 
 # 忽略的文件
-*.vscode
 *.sdf
-*.json
 *.exe
 *.suo
