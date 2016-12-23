@@ -36,6 +36,12 @@ int main()
 
   cout << pow(10, 3) << endl;
 
+  int n = 3;
+  iota(iv.begin(), iv.end(), n);
+  for (int i = 0; i < iv.size(); ++i)
+    cout << iv[i] << " ";
+  cout << endl;
+
 
   return 0;
 }
