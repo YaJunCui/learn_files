@@ -8,7 +8,7 @@
 
 using namespace std;
 
-int main()
+int main_6_3_1()
 {
   vector<int> iv{ 1, 2, 3, 4, 5 };
 
