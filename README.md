@@ -24,6 +24,18 @@
 * [5_2_rb_tree.hpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/5_关联式容器/5_2_rb_tree.hpp)
 * [5_7_hashtable.hpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/5_关联式容器/5_7_hashtable.hpp)
 
+### [6_算法](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法)
+
+* [6_3_1_numeric.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/6_3_1_numeric.cpp)
+* [6_4_1_algobase.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/6_4_1_algobase.cpp)
+* [accumulate.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/accumulate.cpp)
+* [adjacent_difference.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/adjacent_difference.cpp)
+* [equal.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/equal.cpp)
+* [fill_and_fill_n.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/fill_and_fill_n.cpp)
+* [partial_sum.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/partial_sum.cpp)
+* [pow.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/pow.cpp)
+* [equal.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/equal.cpp)
+
 ## [lab](https://github.com/YaJunCui/learn_files/tree/master/lab)：实验室项目
 
 ### [Pelco_Server_interface](https://github.com/YaJunCui/learn_files/tree/master/lab/Pelco_Server_interface)：变电所项目
