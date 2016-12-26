@@ -1,4 +1,4 @@
-// Edit by cyj 2016-12-26
+ï»¿// Edit by cyj 2016-12-26
 #ifndef __CYJ_COPY_H__
 #define __CYJ_COPY_H__
 #include <cstring>
@@ -26,13 +26,13 @@ inline OutputIterator
 __copy_d(RandomAccessIterator first, RandomAccessIterator last,
          OutputIterator result, Distance*)
 {
-  // ÒÔ n ¾ö¶¨Ñ­»·µÄÖ´ĞĞ´ÎÊı¡£ËÙ¶È¿ì
+  // ä»¥ n å†³å®šå¾ªç¯çš„æ‰§è¡Œæ¬¡æ•°ã€‚é€Ÿåº¦å¿«
   for (Distance n = last - first; n > 0; --n, ++result, ++first)
     *result = *first;
   return result;
 }
 
-//ÊÊÓ¦Ö¸ÕëËùÖ¸¶ÔÏó¾ß±¸ trivial assignment operator
+//é€‚åº”æŒ‡é’ˆæ‰€æŒ‡å¯¹è±¡å…·å¤‡ trivial assignment operator
 template <class T>
 inline T* __copy_t(const T* first, const T* last, T* result, ture_type)
 {
@@ -40,30 +40,30 @@ inline T* __copy_t(const T* first, const T* last, T* result, ture_type)
   return result + (last - first);
 }
 
-//ÊÊÓ¦Ö¸ÕëËùÖ¸¶ÔÏó¾ß±¸ non-trivial assignment operator
+//é€‚åº”æŒ‡é’ˆæ‰€æŒ‡å¯¹è±¡å…·å¤‡ non-trivial assignment operator
 template <class T>
 inline T* __copy_t(const T* first, const T* last, T* result, false_type)
 {
   return __copy_d(first, last, result, (ptrdiff_t*)0);
 }
 
-// InputIterator °æ±¾
+// InputIterator ç‰ˆæœ¬
 template <class InputIterator, class OutputIterator>
 inline OutputIterator __copy(InputIterator first, InputIterator last,
                              OutputIterator result, input_iterator_tag)
 {
-  // ÒÔµü´úÆ÷µÈÍ¬Óë·ñ£¬¾ö¶¨Ñ­»·ÊÇ·ñ¼ÌĞø¡£ËÙ¶ÈÂı
+  // ä»¥è¿­ä»£å™¨ç­‰åŒä¸å¦ï¼Œå†³å®šå¾ªç¯æ˜¯å¦ç»§ç»­ã€‚é€Ÿåº¦æ…¢
   for (; first != last; ++result, ++first)
     *result = *first;
   return result;
 }
 
-// RandomIterator °æ±¾
+// RandomIterator ç‰ˆæœ¬
 template <class RandomAccessIterator, class OutputIterator>
 inline OutputIterator __copy(RandomAccessIterator first, RandomAccessIterator last,
                              OutputIterator result, random_access_iterator_tag)
 {
-  // ÓÖ»®³öÒ»¸öº¯Êı£¬ÎªµÄÊÇÆäËûµØ·½¿ÉÒÔÓÃµ½
+  // åˆåˆ’å‡ºä¸€ä¸ªå‡½æ•°ï¼Œä¸ºçš„æ˜¯å…¶ä»–åœ°æ–¹å¯ä»¥ç”¨åˆ°
   typedef typename iterator_traits<RandomAccessIterator>::distance_type Distance;
   return __copy_d(first, last, result, &Distance());
 }
@@ -97,7 +97,7 @@ struct __copy_dispatch<const T*, const T*>
   }
 };
 
-// ¶ÔÍâ½Ó¿Ú
+// å¯¹å¤–æ¥å£
 template <class InputIterator,class OutputIterator>
 inline OutputIterator copy(InpuIterator first, InputIterator last,
                            OutputIterator result)
