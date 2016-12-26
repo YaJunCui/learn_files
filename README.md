@@ -34,6 +34,8 @@
 * [adjacent_difference.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/adjacent_difference.cpp)
 * [copy.hpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/copy.hpp)
 * [copy_test.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/copy_test.cpp)
+* [data_handle_funcs.hpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/data_handle_funcs.hpp)
+* [data_handle_funcs_test.hpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/data_handle_funcs_test.hpp)
 * [equal.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/equal.cpp)
 * [fill_and_fill_n.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/fill_and_fill_n.cpp)
 * [iter_swap.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/iter_swap.cpp)
