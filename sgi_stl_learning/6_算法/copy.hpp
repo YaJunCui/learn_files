@@ -64,7 +64,7 @@ inline OutputIterator __copy(RandomAccessIterator first, RandomAccessIterator la
                              OutputIterator result, random_access_iterator_tag)
 {
   // 又划出一个函数，为的是其他地方可以用到
-  typedef typename iterator_traits<RandomAccessIterator>::distance_type Distance;
+  typedef typename iterator_traits<RandomAccessIterator>::difference_type Distance;
   return __copy_d(first, last, result, (Distance*)(0));
 }
 

@@ -5,25 +5,22 @@
 #include <iostream>
 #include <vector>
 #include <list>
+#include <deque>
 
 using namespace std;
 
 class C
 {
 public:
-  C() :data_(3){}
+  C(int data=0) :data_(data){}
+
+  int get_data()
+  {
+    return data_;
+  }
 
 private:
   int data_;
-};
-
-class A
-{
-public:
-  A() :data_(new int(10)){}
-
-private:
-  int* data_;
 };
 
 int main()
@@ -73,31 +70,28 @@ int main()
   cyj::copy(ivecs.begin(), ivecs.end(), ivecd.begin());
 #endif
 
-#if 1
+#if 0
   //测试6
-  C c[5];
+  C c[5] = {C(1),C(2),C(3),C(4),C(5)};
   vector<C> Cvs(c,c+5);
   vector<C> Cvd(5);
+  cyj::copy(Cvs.begin(), Cvs.end(), Cvd.begin());
 
+  for (auto val : Cvd)
+    cout << val.get_data() << " ";
+  cout << endl;
 #endif
 
 #if 0
+  //测试7
+  C c[5] = { C(1), C(2), C(3), C(4), C(5) };
+  deque<C> Cds(c, c + 5);
+  deque<C> Cdd(5);
+  cyj::copy(Cds.begin(), Cds.end(), Cdd.begin());
 
-#endif
-#if 0
-
-#endif
-
-#if 0
-
-#endif
-
-#if 0
-
-#endif
-
-#if 0
-
+  for (auto val : Cdd)
+    cout << val.get_data() << " ";
+  cout << endl;
 #endif
 
   return 0;
