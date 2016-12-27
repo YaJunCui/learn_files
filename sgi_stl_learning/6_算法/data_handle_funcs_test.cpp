@@ -6,6 +6,7 @@
 #include <vector>
 #include <list>
 #include <functional>
+#include <algorithm>
 
 using std::cout;
 using std::endl;
@@ -43,6 +44,27 @@ int main()
   cout << "test find_end" << endl;
   vector<int> iv2(iv.begin() + 6, iv.begin() + 8);
   cout << *(cyj::find_end(iv.begin(), iv.end(), iv2.begin(), iv2.end()) + 3) << endl;
+
+  cout << "test merge" << endl;
+  vector<int> iv3{1,3,5,6,7};
+  vector<int> iv4{ 2, 4, 5, 7, 8, 9 };
+  vector<int> iv5(iv3.size() + iv4.size(),0);
+  cyj::merge(iv3.begin(), iv3.end(), iv4.begin(), iv4.end(), iv5.begin());
+  for (auto val : iv5)
+    cout << val << " ";
+  cout << endl;
+
+  cout << "test partition" << endl;
+  vector<int> iv7{ 1, 6, 3, 9, 2, 4, 5 };
+  for (auto val : iv7)
+    cout << val << " ";
+  cout << endl;
+  cyj::partition(iv7.begin(), iv7.end(), std::bind(std::less_equal<int>(), std::placeholders::_1, 4));
+  //std::stable_partition(iv7.begin(), iv7.end(), std::bind(std::less_equal<int>(), std::placeholders::_1, 4));
+  for (auto val : iv7)
+    cout << val << " ";
+  cout << endl;
+
 
   return 0;
 }

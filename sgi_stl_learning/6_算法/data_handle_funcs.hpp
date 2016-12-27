@@ -185,6 +185,72 @@ inline ForwardIterator1 find_end(ForwardIterator1 first1,
   return __find_end(first1, last1, first2, last2, category1(), category2());
 }
 
+template <class InputIterator1, class InputIterator2, class OutputIterator>
+OutputIterator merge(InputIterator1 first1, InputIterator1 last1,
+                     InputIterator2 first2, InputIterator2 last2,
+                     OutputIterator result)
+{
+  while (true) {
+    if (first1 == last1) return std::copy(first2, last2, result);
+    if (first2 == last2) return std::copy(first1, last1, result);
+    *result++ = (*first2 < *first1) ? *first2++ : *first1++;
+  }
+}
+
+template <class BidirectionalIterator, class Predicate>
+BidirectionalIterator partition(BidirectionalIterator first,
+                                BidirectionalIterator last,
+                                Predicate pred)
+{
+  while (true)
+  {
+    while (true)
+    {
+      if (first == last)            //头指针等于尾指针
+        return first;
+      else if (pred(*first))
+        ++first;
+      else
+        break;
+    }
+    --last;                         //尾指针回溯1
+    while (true)
+    {
+      if (first == last)
+        return first;
+      else if (!pred(*last))
+        --last;
+      else
+        break;
+    }
+    std::iter_swap(first, last);
+    ++first;
+  }
+}
+
+template <class InputIterator,class OutputIterator,class T>
+OutputIterator remove_copy(InputIterator first, InputIterator last,
+                           OutputIterator result, const T& value)
+{
+  for (; first != last; ++first)
+  {
+    if (*first != value)
+    {
+      *result = *first;
+      ++result;
+    }
+  }
+  return result;
+}
+
+template <typename ForwardIterator,class T>
+ForwardIterator remove(ForwardIterator first, ForwardIterator last, const T& value)
+{
+  first = find(first, last, value);                      //利用循环查找法找到第一个相等元素
+  ForwardIterator next = first;
+
+}
+
 }//namespace cyj
 
 #endif
