@@ -63,7 +63,17 @@ int main()
   //std::stable_partition(iv7.begin(), iv7.end(), std::bind(std::less_equal<int>(), std::placeholders::_1, 4));
   for (auto val : iv7)
     cout << val << " ";
+  cout << endl << endl;;
+
+  cout << "test reverse" << endl;
+  vector<int> iv8{ 1, 2, 3, 4, 5 };
+  for (auto val : iv8)
+    cout << val << " ";
   cout << endl;
+  cyj::reverse(iv8.begin(), iv8.end());
+  for (auto val : iv8)
+    cout << val << " ";
+  cout << endl << endl;
 
 
   return 0;

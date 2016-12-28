@@ -249,6 +249,34 @@ ForwardIterator remove(ForwardIterator first, ForwardIterator last, const T& val
   first = find(first, last, value);                      //利用循环查找法找到第一个相等元素
   ForwardIterator next = first;
 
+  return first == last ? first : cyj::remove_copy(++next, last, first, value);
+}
+
+template <typename BidirectionalIterator>
+inline void __reverse(BidirectionalIterator first, BidirectionalIterator last, bidirectional_iterator_tag)
+{
+  while (true)
+  {
+    if (first == last || first == --last)           //只要first与last不重合，first == --last都会执行
+      return;
+    else
+      std::iter_swap(first++, last);
+  }
+}
+
+template <typename RandomAccessIterator>
+inline void __reverse(RandomAccessIterator first, RandomAccessIterator last, random_access_iterator_tag)
+{
+  while (first<last)
+  {
+    std::iter_swap(first++, --last);
+  }
+}
+
+template <typename BidirectionalIterator>
+inline void reverse(BidirectionalIterator first, BidirectionalIterator last)
+{
+  __reverse(first, last, typename iterator_traits<BidirectionalIterator>::iterator_category());
 }
 
 }//namespace cyj
