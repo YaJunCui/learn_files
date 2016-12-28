@@ -9,6 +9,7 @@ using std::random_access_iterator_tag;
 using std::bidirectional_iterator_tag;
 using std::iterator_traits;
 using std::reverse_iterator;
+using std::iter_swap;
 
 namespace cyj
 {
@@ -269,7 +270,7 @@ inline void __reverse(RandomAccessIterator first, RandomAccessIterator last, ran
 {
   while (first<last)
   {
-    std::iter_swap(first++, --last);
+    iter_swap(first++, --last);
   }
 }
 
@@ -277,6 +278,93 @@ template <typename BidirectionalIterator>
 inline void reverse(BidirectionalIterator first, BidirectionalIterator last)
 {
   __reverse(first, last, typename iterator_traits<BidirectionalIterator>::iterator_category());
+}
+
+template <typename ForwardIterator, class Distance>
+void __rotate(ForwardIterator first, ForwardIterator middle,
+              ForwardIterator last, Distance*, forward_iterator_tag)
+{
+  for (ForwardIterator i = middle;;)
+  {
+    iter_swap(first, i);                    //前端、后端元素一一交换
+    ++first;
+    ++i;
+
+    //以下判断是前端[first,middle)先结束还是后段[middle,last)先结束
+    if (first == middle)                    //前段结束
+    {
+      if (i == middle) return;              //如果后段也结束，整个就结束了
+      middle = i;                           //否则调整，对新的前、后段再作交换
+    }
+    else if (i == last)                     //后段先结束
+    {
+      i = middle;                           //调整，对新的前、后段再作交换
+    }
+  }
+}
+
+template <class BidirectionalIterator, class Distance>
+void __rotate(BidirectionalIterator first, BidirectionalIterator middle,
+              BidirectionalIterator last, Distance*,
+              bidirectional_iterator_tag)
+{
+  reverse(first, middle);
+  reverse(middle, last);
+  reverse(first, last);
+}
+
+template <class EuclideanRingElement>
+EuclideanRingElement __gcd(EuclideanRingElement m, EuclideanRingElement n)
+{
+  while (n != 0)
+  {
+    EuclideanRingElement t = m%n;
+    m = n;
+    n = t;
+  }
+  return m;
+}
+
+template <class RandomAccessIterator, class Distance>
+void __rotate_cycle(RandomAccessIterator first, RandomAccessIterator last,
+              RandomAccessIterator initial, Distance shift)
+{
+  typedef typename iterator_traits<RandomAccessIterator>::value_type T;
+
+  T vlaue = *initial;
+  RandomAccessIterator ptr1 = initial;
+  RandomAccessIterator ptr2 = ptr1 + shift;
+
+  while (ptr2 != initial)
+  {
+    *ptr1 = *ptr2;
+    ptr1 = ptr2;
+    if (last - ptr2 > shift)
+      ptr2 += shift;
+    else
+      ptr2 = first + (shift - (last - ptr2));
+  }
+  *ptr1 = value;
+}
+
+template <class RandomAccessIterator, class Distance>
+void __rotate(RandomAccessIterator first, RandomAccessIterator middle,
+              RandomAccessIterator last, Distance*,
+              random_access_iterator_tag)
+{
+
+}
+
+template <class ForwardIterator>
+inline void rotate(ForwardIterator first, ForwardIterator middle,
+                   ForwardIterator last)
+{
+  if (first == middle || middle == last)
+    return;
+  typedef iterator_traits<ForwardIterator>::iterator_category iterator_category;
+  typedef iterator_traits<ForwardIterator>::difference_type   Distance;
+
+  __rotate(first, middle, last, &Distance(0), iterator_category());
 }
 
 }//namespace cyj
