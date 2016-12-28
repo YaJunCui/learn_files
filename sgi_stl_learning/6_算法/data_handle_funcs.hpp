@@ -352,7 +352,11 @@ void __rotate(RandomAccessIterator first, RandomAccessIterator middle,
               RandomAccessIterator last, Distance*,
               random_access_iterator_tag)
 {
-
+  Distance n = __gcd(last - first, middle - first);
+  while (n--)
+  {
+    __rotate_cycle(first, last, first + n, middle - first);
+  }
 }
 
 template <class ForwardIterator>
