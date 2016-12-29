@@ -32,6 +32,8 @@
 * [6_5_1_set相关算法.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/6_5_1_set相关算法.cpp)
 * [accumulate.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/accumulate.cpp)
 * [adjacent_difference.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/adjacent_difference.cpp)
+* [complex_funcs.hpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/complex_funcs.hpp)
+* [complex_funcs_test.hpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/complex_funcs_test.hpp)
 * [copy.hpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/copy.hpp)
 * [copy_test.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/copy_test.cpp)
 * [data_handle_funcs.hpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/data_handle_funcs.hpp)
