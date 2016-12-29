@@ -43,7 +43,7 @@
 * [iter_swap.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/iter_swap.cpp)
 * [partial_sum.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/partial_sum.cpp)
 * [permutation.hpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/permutation.hpp)
-* [permutation_test.hpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/permutation_test.hpp)
+* [permutation_test.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/permutation_test.cpp)
 * [pow.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/pow.cpp)
 
 ## [lab](https://github.com/YaJunCui/learn_files/tree/master/lab)：实验室项目
