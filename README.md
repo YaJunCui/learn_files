@@ -41,9 +41,9 @@
 * [equal.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/equal.cpp)
 * [fill_and_fill_n.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/fill_and_fill_n.cpp)
 * [iter_swap.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/iter_swap.cpp)
-* [next_permutation.hpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/next_permutation.hpp)
-* [next_permutation_test.hpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/next_permutation_test.hpp)
 * [partial_sum.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/partial_sum.cpp)
+* [permutation.hpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/permutation.hpp)
+* [permutation_test.hpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/permutation_test.hpp)
 * [pow.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/pow.cpp)
 
 ## [lab](https://github.com/YaJunCui/learn_files/tree/master/lab)：实验室项目
