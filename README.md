@@ -41,6 +41,7 @@
 * [equal.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/equal.cpp)
 * [fill_and_fill_n.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/fill_and_fill_n.cpp)
 * [iter_swap.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/iter_swap.cpp)
+* [partial_sort.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/partial_sort.cpp)
 * [partial_sum.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/partial_sum.cpp)
 * [permutation.hpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/permutation.hpp)
 * [permutation_test.cpp](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/6_算法/permutation_test.cpp)
