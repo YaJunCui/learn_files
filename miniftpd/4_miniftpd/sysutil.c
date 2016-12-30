@@ -56,14 +56,82 @@ void deactivate_nonblock(int fd)
     ERR_EXIT("fcntl error");
 }
 
+/* read_timeout - 读超时检测函数，不含读操作
+ * fd:            文件描述符
+ * wait_seconds:  等待超时秒数， 如果为0表示不检测超时；
+ * 成功（未超时）返回0，失败返回-1，超时返回-1并且errno = ETIMEDOUT
+ */
 
-//int read_timeout(int fd, unsigned int wait_seconds)
-//...
-//      {
-          ret = -1;
-          errno = ETIMEDOUT;
+int read_timeout(int fd, unsigned int wait_seconds)
+{
+  int ret = 0;
+  if (wait_seconds > 0)
+  {
+
+    fd_set read_fdset;
+    struct timeval timeout;
+
+    FD_ZERO(&read_fdset);
+    FD_SET(fd, &read_fdset);
+
+    timeout.tv_sec = wait_seconds;
+    timeout.tv_usec = 0;
+
+    do
+    {
+      ret = select(fd + 1, &read_fdset, NULL, NULL, &timeout); //select会阻塞直到检测到事件或者超时
+                                                               // 如果select检测到可读事件发送，则此时调用read不会阻塞
+    } while (ret < 0 && errno == EINTR);
+
+    if (ret == 0)
+    {
+      ret = -1;
+      errno = ETIMEDOUT;
+    }
+    else if (ret == 1)
+      return 0;
+  }
+
+  return ret;
 }
-//int write_timeout(int fd, unsigned int wait_seconds);
+
+/* write_timeout - 写超时检测函数，不含写操作
+ * fd:            文件描述符
+ * wait_seconds:  等待超时秒数， 如果为0表示不检测超时；
+ * 成功（未超时）返回0，失败返回-1，超时返回-1并且errno = ETIMEDOUT
+ */
+
+int write_timeout(int fd, unsigned int wait_seconds)
+{
+  int ret = 0;
+  if (wait_seconds > 0)
+  {
+
+    fd_set write_fdset;
+    struct timeval timeout;
+
+    FD_ZERO(&write_fdset);
+    FD_SET(fd, &write_fdset);
+
+    timeout.tv_sec = wait_seconds;
+    timeout.tv_usec = 0;
+
+    do
+    {
+      ret = select(fd + 1, NULL, &write_fdset, NULL, &timeout);
+    } while (ret < 0 && errno == EINTR);
+
+    if (ret == 0)
+    {
+      ret = -1;
+      errno = ETIMEDOUT;
+    }
+    else if (ret == 1)
+      return 0;
+  }
+
+  return ret;
+}
 
 /*
  *accept_timeout: 接受客户端的连接

@@ -11,8 +11,8 @@ int getlocalip(char* ip);                          //获取本机ip地址
 void activate_nonblock(int fd);                    //设置文件描述fd为非阻塞模式                   
 void deactivate_nonblock(int fd);                  //去掉文件描述fd的非阻塞模式                     
 
-//int read_timeout(int fd, unsigned int wait_seconds);  
-//int write_timeout(int fd, unsigned int wait_seconds);
+int read_timeout(int fd, unsigned int wait_seconds);  
+int write_timeout(int fd, unsigned int wait_seconds);
 int accept_timeout(int fd, struct sockaddr_in* addr, unsigned int wait_seconds);      //接受超时函数
 int connect_timeout(int fd, struct sockaddr_in* addr, unsigned int wait_seconds);     //连接超时函数
 
