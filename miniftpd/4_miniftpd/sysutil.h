@@ -4,6 +4,8 @@
 
 #include "common.h"
 
+int tcp_server(const char* host, unsigned short port);
+
 int getlocalip(char* ip);                          //获取本机ip地址
 
 void activate_nonblock(int fd);                    //设置文件描述fd为非阻塞模式                   

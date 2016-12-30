@@ -1,6 +1,6 @@
 //Edit by cyj 2016-12-30
+
 #include "common.h"
-#include "sysutil.h"
 
 int main()
 {

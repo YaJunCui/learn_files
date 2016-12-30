@@ -15,6 +15,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "sysutil.h"
+
 #define  ERR_EXIT(m) \
   do \
   { \

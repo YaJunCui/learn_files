@@ -56,6 +56,15 @@ void deactivate_nonblock(int fd)
     ERR_EXIT("fcntl error");
 }
 
+
+//int read_timeout(int fd, unsigned int wait_seconds)
+//...
+//      {
+          ret = -1;
+          errno = ETIMEDOUT;
+}
+//int write_timeout(int fd, unsigned int wait_seconds);
+
 /*
  *accept_timeout: 接受客户端的连接
  *@fd:            服务器端的套接字
