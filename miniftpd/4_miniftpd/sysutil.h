@@ -2,6 +2,8 @@
 #ifndef __SYS_UTIL_H__
 #define __SYS_UTIL_H__
 
+#include "common.h"
+
 int getlocalip(char* ip);                          //获取本机ip地址
 
 void activate_nonblock(int fd);                    //设置文件描述fd为非阻塞模式                   

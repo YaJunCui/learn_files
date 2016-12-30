@@ -26,7 +26,7 @@ int getlocalip(char *ip)                //获取本机ip地址
  *activate_nonblock:  设置IO为非阻塞模式
  *@fd:                文件描述符
  */
-static void activate_nonblock(int fd)
+void activate_nonblock(int fd)
 {
   int ret;
   int flags = fcntl(fd, F_GETFL);
@@ -43,7 +43,7 @@ static void activate_nonblock(int fd)
  *deactivate_nonblock: 设置IO为阻塞模式
  *@fd:                 文件描述符
  */
-static void deactivate_nonblock(int fd)
+void deactivate_nonblock(int fd)
 {
   int ret;
   int flags = fcntl(fd, F_GETFL);
@@ -215,24 +215,25 @@ ssize_t writen(int fd, const void *vptr, size_t n)
 
 ssize_t readline(int fd, void *vptr, size_t maxlen)
 {
-  ssize_t n, rc;
-  char c, *ptr;
-  ptr = vptr;
-  for (n = 1; n < maxlen; n++) {
-    if ((rc = my_read(fd, &c)) == 1) {
-      *ptr++ = c;
-      if (c == '\n')
-        break;
-    }
-    else if (rc == 0) {
-      *ptr = 0;
-      return n - 1;
-    }
-    else
-      return -1;
-  }
-  *ptr = 0;
-  return n;
+  // ssize_t n, rc;
+  // char c, *ptr;
+  // ptr = vptr;
+  // for (n = 1; n < maxlen; n++) {
+  //   if ((rc = my_read(fd, &c)) == 1) {
+  //     *ptr++ = c;
+  //     if (c == '\n')
+  //       break;
+  //   }
+  //   else if (rc == 0) {
+  //     *ptr = 0;
+  //     return n - 1;
+  //   }
+  //   else
+  //     return -1;
+  // }
+  // *ptr = 0;
+  // return n;
+  return 0;
 }
 
 void  send_fd(int  sock_fd, int  send_fd)       //发送网络套接字
