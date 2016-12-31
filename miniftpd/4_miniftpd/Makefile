@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-Wall -g
 BIN=miniftpd.out
-OBJS=main.o sysutil.o
+OBJS=main.o sysutil.o session.o
 
 $(BIN):$(OBJS)
 	$(CC) $(CFLAGS) $^ -o $@

@@ -3,14 +3,59 @@
 #include "sysutil.h"
 
 /*
- * tcp_server　[[Invalid UTF-8] 
-  [Invalid UTF-8][Invalid UTF-8] [Invalid UTF-8]
- *
+ * tcp_server - 启动 tcp 服务器
+ * @host:       服务器 IP 地址或者服务器主机名
+ * @port：       服务器端口
+ * 成功返回监听套接字
  */
 int tcp_server(const char* host, unsigned short port)
 {
+  int ret = 0;
+  int listen_fd = socket(PF_INET,SOCK_STREAM,0);                      //创建套接字
+  if(listen_fd < 0)
+    ERR_EXIT("tcp_server");
 
-  return 0;
+  struct sockaddr_in serv_addr;
+  memset(&serv_addr,0,sizeof(serv_addr));
+
+  serv_addr.sin_family = AF_INET;
+if(host != NULL)                                                      //填充 IP 地址
+  {
+    if(inet_aton(host, &serv_addr.sin_addr) == 0)
+    {
+      struct hostent* hp;
+      hp = gethostbyname(host);
+      if(hp == NULL)
+      {
+        ERR_EXIT("getlocalip");
+      }
+      serv_addr.sin_addr = *(struct in_addr*)hp->h_addr;
+    }
+  }
+  else
+  {
+    serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+  }
+  serv_addr.sin_port = htons(port);                                   //绑定端口
+
+  int on = 1;        
+  ret = setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, (const char*)&on, sizeof(on));      //设置地址重复利用                                   
+  if(ret < 0)
+    ERR_EXIT("gethostbyname");
+
+  ret = bind(listen_fd, (struct sockaddr*)&serv_addr, sizeof(serv_addr));       //绑定套接字
+  if(ret < 0)
+  {
+    ERR_EXIT("bind");
+  }
+
+  ret = listen(listen_fd, SOMAXCONN);
+  if(ret < 0)
+  {
+    ERR_EXIT("listen");
+  }
+
+  return listen_fd;
 }
 
 int getlocalip(char *ip)
@@ -20,7 +65,7 @@ int getlocalip(char *ip)
 		return -1;
 	struct hostent *hp;
 	if ((hp = gethostbyname(host)) == NULL)
-	return -1;
+	  return -1;
 
 	strcpy(ip, inet_ntoa(*(struct in_addr*)hp->h_addr));
 	return 0;
@@ -28,7 +73,7 @@ int getlocalip(char *ip)
 
 /*
  * activate_noblock - 设置I/O为非阻塞模式
- * @fd: 文件描符�?
+ * @fd: 文件描符
  */
 void activate_nonblock(int fd)
 {
@@ -44,8 +89,8 @@ void activate_nonblock(int fd)
 }
 
 /*
- * deactivate_nonblock - 设置I/O为阻塞模�?
- * @fd: 文件描符�?
+ * deactivate_nonblock - 设置I/O为阻塞模
+ * @fd: 文件描符
  */
 void deactivate_nonblock(int fd)
 {
@@ -60,11 +105,11 @@ void deactivate_nonblock(int fd)
     ERR_EXIT("fcntl");
 }
 
-/*
- * read_timeout - 读超时检测函数，不含读操�?
- * @fd:           文件描述�?
- * @wait_seconds: 等待超时秒数，如果为0表示不检测超�?
- * 成功（未超时）返�?0，失败返�?-1，超时返�?-1并且errno = ETIMEDOUT
+/**
+ * read_timeout - 读超时检测函数，不含读操作
+ * @fd: 文件描述符
+ * @wait_seconds: 等待超时秒数，如果为0表示不检测超时
+ * 成功（未超时）返回0，失败返回-1，超时返回-1并且errno = ETIMEDOUT
  */
 int read_timeout(int fd, unsigned int wait_seconds)
 {
@@ -96,11 +141,11 @@ int read_timeout(int fd, unsigned int wait_seconds)
   return ret;
 }
 
-/*
- * write_timeout - 读超时检测函数，不含写操�?
- * @fd: 文件描述�?
- * @wait_seconds: 等待超时秒数，如果为0表示不检测超�?
- * 成功（未超时）返�?0，失败返�?-1，超时返�?-1并且errno = ETIMEDOUT
+/**
+ * write_timeout - 读超时检测函数，不含写操作
+ * @fd: 文件描述符
+ * @wait_seconds: 等待超时秒数，如果为0表示不检测超时
+ * 成功（未超时）返回0，失败返回-1，超时返回-1并且errno = ETIMEDOUT
  */
 int write_timeout(int fd, unsigned int wait_seconds)
 {
@@ -132,10 +177,10 @@ int write_timeout(int fd, unsigned int wait_seconds)
   return ret;
 }
 
-/*
+/**
  * accept_timeout - 带超时的accept
- * @fd: 套接�?
- * @addr: 输出参数，返回对方地址
+ * @fd:           套接字
+ * @addr:         输出参数，返回对方地址
  * @wait_seconds: 等待超时秒数，如果为0表示正常模式
  * 成功（未超时）返回已连接套接字，超时返回-1并且errno = ETIMEDOUT
  */
@@ -176,12 +221,12 @@ int accept_timeout(int fd, struct sockaddr_in *addr, unsigned int wait_seconds)
   return ret;
 }
 
-/*
+/**
  * connect_timeout - connect
- * @fd: 套接�?
+ * @fd: 套接字
  * @addr: 要连接的对方地址
  * @wait_seconds: 等待超时秒数，如果为0表示正常模式
- * 成功（未超时）返�?0，失败返�?-1，超时返�?-1并且errno = ETIMEDOUT
+ * 成功（未超时）返回0，失败返回-1，超时返回-1并且errno = ETIMEDOUT
  */
 int connect_timeout(int fd, struct sockaddr_in *addr, unsigned int wait_seconds)
 {
@@ -214,9 +259,9 @@ int connect_timeout(int fd, struct sockaddr_in *addr, unsigned int wait_seconds)
       return -1;
     else if (ret == 1)
     {
-      /* ret返回�?1，可能有两种情况，一种是连接建立成功，一种是套接字产生错误，*/
-      /* 此时错误信息不会保存至errno变量中，因此，需要调用getsockopt来获取�? */
-      int err;
+      /* ret返回为1，可能有两种情况，一种是连接建立成功，一种是套接字产生错误，*/
+			/* 此时错误信息不会保存至errno变量中，因此，需要调用getsockopt来获取。 */
+			int err;
       socklen_t socklen = sizeof(err);
       int sockoptret = getsockopt(fd, SOL_SOCKET, SO_ERROR, &err, &socklen);
       if (sockoptret == -1)
@@ -241,12 +286,12 @@ int connect_timeout(int fd, struct sockaddr_in *addr, unsigned int wait_seconds)
   return ret;
 }
 
-/*
- * readn - 读取固定字节�?
- * @fd: 文件描述�?
- * @buf: 接收缓冲�?
- * @count: 要读取的字节�?
- * 成功返回count，失败返�?-1，读到EOF返回<count
+/**
+ * readn - 读取固定字节数
+ * @fd: 文件描述符
+ * @buf: 接收缓冲区
+ * @count: 要读取的字节数
+ * 成功返回count，失败返回-1，读到EOF返回<count
  */
 ssize_t readn(int fd, void *buf, size_t count)
 {
@@ -272,12 +317,12 @@ ssize_t readn(int fd, void *buf, size_t count)
   return count;
 }
 
-/*
+/**
  * writen - 发送固定字节数
- * @fd: 文件描述�?
+ * @fd: 文件描述符
  * @buf: 发送缓冲区
- * @count: 要读取的字节�?
- * 成功返回count，失败返�?-1
+ * @count: 要读取的字节数
+ * 成功返回count，失败返回-1
  */
 ssize_t writen(int fd, const void *buf, size_t count)
 {
@@ -303,12 +348,12 @@ ssize_t writen(int fd, const void *buf, size_t count)
   return count;
 }
 
-/*
- * recv_peek - 仅仅查看套接字缓冲区数据，但不移除数�?
- * @sockfd: 套接�?
- * @buf: 接收缓冲�?
+/**
+ * recv_peek - 仅仅查看套接字缓冲区数据，但不移除数据
+ * @sockfd: 套接字
+ * @buf: 接收缓冲区
  * @len: 长度
- * 成功返回>=0，失败返�?-1
+ * 成功返回>=0，失败返回-1
  */
 ssize_t recv_peek(int sockfd, void *buf, size_t len)
 {
@@ -321,12 +366,12 @@ ssize_t recv_peek(int sockfd, void *buf, size_t len)
   }
 }
 
-/*
+/**
  * readline - 按行读取数据
- * @sockfd: 套接�?
- * @buf: 接收缓冲�?
- * @maxline: 每行最大长�?
- * 成功返回>=0，失败返�?-1
+ * @sockfd: 套接字
+ * @buf: 接收缓冲区
+ * @maxline: 每行最大长度
+ * 成功返回>=0，失败返回-1
  */
 ssize_t readline(int sockfd, void *buf, size_t maxline)
 {
@@ -341,7 +386,7 @@ ssize_t readline(int sockfd, void *buf, size_t maxline)
     if (ret < 0)
       return ret; // 返回小于0表示失败
     else if (ret == 0)
-      return ret; //返回0表示对方关闭连接�?
+      return ret; //返回0表示对方关闭连接了
 
     nread = ret;
     int i;
