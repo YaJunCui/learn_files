@@ -1,73 +1,76 @@
+// Edit by cyj 2016-12-30
+
 #include "sysutil.h"
 
-int getlocalip(char *ip)                //获取本机ip地址
+/*
+ * tcp_server　[[Invalid UTF-8] 
+  [Invalid UTF-8][Invalid UTF-8] [Invalid UTF-8]
+ *
+ */
+int tcp_server(const char* host, unsigned short port)
 {
-  if (ip == NULL)
-    return -1;
 
-  char hostname[128] = { 0 };
-  struct hostent *hent;
-
-  //获取主机名
-  if (gethostname(hostname, sizeof(hostname)) < 0)
-    ERR_EXIT("gethostname");
-  printf("hostname=%s\n", hostname);
-  //通过主机名获取ip地址
-  if ((hent = gethostbyname(hostname)) < 0)
-    return -1;
-  //printf("iplen=%d\n",(unsigned int)sizeof(struct in_addr));
-
-  strcpy(ip, inet_ntoa(*(struct in_addr*)hent->h_addr));
-  printf("ip=%s\n", inet_ntoa(*(struct in_addr*)hent->h_addr));//输出ip
   return 0;
 }
 
+int getlocalip(char *ip)
+{
+	char host[100] = {0};
+	if (gethostname(host, sizeof(host)) < 0)
+		return -1;
+	struct hostent *hp;
+	if ((hp = gethostbyname(host)) == NULL)
+	return -1;
+
+	strcpy(ip, inet_ntoa(*(struct in_addr*)hp->h_addr));
+	return 0;
+}
+
 /*
- *activate_nonblock:  设置IO为非阻塞模式
- *@fd:                文件描述符
+ * activate_noblock - 设置I/O为非阻塞模式
+ * @fd: 文件描符�?
  */
 void activate_nonblock(int fd)
 {
   int ret;
   int flags = fcntl(fd, F_GETFL);
   if (flags == -1)
-    ERR_EXIT("fcntl error");
+    ERR_EXIT("fcntl");
 
   flags |= O_NONBLOCK;
   ret = fcntl(fd, F_SETFL, flags);
   if (ret == -1)
-    ERR_EXIT("fcntl error");
+    ERR_EXIT("fcntl");
 }
 
 /*
- *deactivate_nonblock: 设置IO为阻塞模式
- *@fd:                 文件描述符
+ * deactivate_nonblock - 设置I/O为阻塞模�?
+ * @fd: 文件描符�?
  */
 void deactivate_nonblock(int fd)
 {
   int ret;
   int flags = fcntl(fd, F_GETFL);
   if (flags == -1)
-    ERR_EXIT("fcntl error");
+    ERR_EXIT("fcntl");
 
   flags &= ~O_NONBLOCK;
   ret = fcntl(fd, F_SETFL, flags);
   if (ret == -1)
-    ERR_EXIT("fcntl error");
+    ERR_EXIT("fcntl");
 }
 
-/* read_timeout - 读超时检测函数，不含读操作
- * fd:            文件描述符
- * wait_seconds:  等待超时秒数， 如果为0表示不检测超时；
- * 成功（未超时）返回0，失败返回-1，超时返回-1并且errno = ETIMEDOUT
+/*
+ * read_timeout - 读超时检测函数，不含读操�?
+ * @fd:           文件描述�?
+ * @wait_seconds: 等待超时秒数，如果为0表示不检测超�?
+ * 成功（未超时）返�?0，失败返�?-1，超时返�?-1并且errno = ETIMEDOUT
  */
-
 int read_timeout(int fd, unsigned int wait_seconds)
 {
   int ret = 0;
   if (wait_seconds > 0)
   {
-
     fd_set read_fdset;
     struct timeval timeout;
 
@@ -76,11 +79,9 @@ int read_timeout(int fd, unsigned int wait_seconds)
 
     timeout.tv_sec = wait_seconds;
     timeout.tv_usec = 0;
-
     do
     {
-      ret = select(fd + 1, &read_fdset, NULL, NULL, &timeout); //select会阻塞直到检测到事件或者超时
-                                                               // 如果select检测到可读事件发送，则此时调用read不会阻塞
+      ret = select(fd + 1, &read_fdset, NULL, NULL, &timeout);
     } while (ret < 0 && errno == EINTR);
 
     if (ret == 0)
@@ -89,24 +90,23 @@ int read_timeout(int fd, unsigned int wait_seconds)
       errno = ETIMEDOUT;
     }
     else if (ret == 1)
-      return 0;
+      ret = 0;
   }
 
   return ret;
 }
 
-/* write_timeout - 写超时检测函数，不含写操作
- * fd:            文件描述符
- * wait_seconds:  等待超时秒数， 如果为0表示不检测超时；
- * 成功（未超时）返回0，失败返回-1，超时返回-1并且errno = ETIMEDOUT
+/*
+ * write_timeout - 读超时检测函数，不含写操�?
+ * @fd: 文件描述�?
+ * @wait_seconds: 等待超时秒数，如果为0表示不检测超�?
+ * 成功（未超时）返�?0，失败返�?-1，超时返�?-1并且errno = ETIMEDOUT
  */
-
 int write_timeout(int fd, unsigned int wait_seconds)
 {
   int ret = 0;
   if (wait_seconds > 0)
   {
-
     fd_set write_fdset;
     struct timeval timeout;
 
@@ -115,10 +115,9 @@ int write_timeout(int fd, unsigned int wait_seconds)
 
     timeout.tv_sec = wait_seconds;
     timeout.tv_usec = 0;
-
     do
     {
-      ret = select(fd + 1, NULL, &write_fdset, NULL, &timeout);
+      ret = select(fd + 1, NULL, NULL, &write_fdset, &timeout);
     } while (ret < 0 && errno == EINTR);
 
     if (ret == 0)
@@ -127,17 +126,18 @@ int write_timeout(int fd, unsigned int wait_seconds)
       errno = ETIMEDOUT;
     }
     else if (ret == 1)
-      return 0;
+      ret = 0;
   }
 
   return ret;
 }
 
 /*
- *accept_timeout: 接受客户端的连接
- *@fd:            服务器端的套接字
- *@addr:          保存客户端的地址
- *@wait_seconds:  等待超时时间
+ * accept_timeout - 带超时的accept
+ * @fd: 套接�?
+ * @addr: 输出参数，返回对方地址
+ * @wait_seconds: 等待超时秒数，如果为0表示正常模式
+ * 成功（未超时）返回已连接套接字，超时返回-1并且errno = ETIMEDOUT
  */
 int accept_timeout(int fd, struct sockaddr_in *addr, unsigned int wait_seconds)
 {
@@ -155,7 +155,7 @@ int accept_timeout(int fd, struct sockaddr_in *addr, unsigned int wait_seconds)
     do
     {
       ret = select(fd + 1, &accept_fdset, NULL, NULL, &timeout);
-    } while (ret < 0 && errno == EINTR);  //当发生中断重新select
+    } while (ret < 0 && errno == EINTR);
     if (ret == -1)
       return -1;
     else if (ret == 0)
@@ -164,20 +164,24 @@ int accept_timeout(int fd, struct sockaddr_in *addr, unsigned int wait_seconds)
       return -1;
     }
   }
+
   if (addr != NULL)
-    ret = accept(fd, (struct sockaddr*)addr, &addrlen);
+    ret = accept(fd, (struct sockaddr *)addr, &addrlen);
   else
     ret = accept(fd, NULL, NULL);
+  /*	if (ret == -1)
+		ERR_EXIT("accept");
+		*/
 
   return ret;
 }
 
 /*
- *connect_timeout=connect
- *@fd:            套接字
- *@addr:          要连接的对方地址
- *@wait_seconds:  等待超时秒数，如果为0表示正常模式
- *成功(未超时)返回0，失败返回-1，超时返回-1并且errno=ETIMEDOUT
+ * connect_timeout - connect
+ * @fd: 套接�?
+ * @addr: 要连接的对方地址
+ * @wait_seconds: 等待超时秒数，如果为0表示正常模式
+ * 成功（未超时）返�?0，失败返�?-1，超时返�?-1并且errno = ETIMEDOUT
  */
 int connect_timeout(int fd, struct sockaddr_in *addr, unsigned int wait_seconds)
 {
@@ -185,10 +189,7 @@ int connect_timeout(int fd, struct sockaddr_in *addr, unsigned int wait_seconds)
   socklen_t addrlen = sizeof(struct sockaddr_in);
 
   if (wait_seconds > 0)
-  {
-    //fd设为非阻塞模式
     activate_nonblock(fd);
-  }
 
   ret = connect(fd, (struct sockaddr *)addr, addrlen);
   if (ret < 0 && errno == EINPROGRESS)
@@ -197,144 +198,201 @@ int connect_timeout(int fd, struct sockaddr_in *addr, unsigned int wait_seconds)
     struct timeval timeout;
     FD_ZERO(&connect_fdset);
     FD_SET(fd, &connect_fdset);
-
     timeout.tv_sec = wait_seconds;
     timeout.tv_usec = 0;
-
     do
     {
-      /*一旦连接建立，套接字就可写*/
+      /* 一量连接建立，套接字就可写 */
       ret = select(fd + 1, NULL, &connect_fdset, NULL, &timeout);
     } while (ret < 0 && errno == EINTR);
-
     if (ret == 0)
-    {//返回0表示时间超时
+    {
+      ret = -1;
       errno = ETIMEDOUT;
-      return -1;
     }
-    else if (ret < 0) /*返回-1表示出错*/
+    else if (ret < 0)
       return -1;
     else if (ret == 1)
     {
-      /*
-      ret 返回为1，可能有两种情况，一种是连接建立成功，一种是
-      套接字产生错误
-      *此时错误信息不会保存至errno变量中（select没有出错），因此需要调用
-      getsockopt来获取
-      */
+      /* ret返回�?1，可能有两种情况，一种是连接建立成功，一种是套接字产生错误，*/
+      /* 此时错误信息不会保存至errno变量中，因此，需要调用getsockopt来获取�? */
       int err;
       socklen_t socklen = sizeof(err);
       int sockoptret = getsockopt(fd, SOL_SOCKET, SO_ERROR, &err, &socklen);
       if (sockoptret == -1)
+      {
         return -1;
+      }
       if (err == 0)
+      {
         ret = 0;
+      }
       else
       {
         errno = err;
         ret = -1;
       }
     }
-
   }
   if (wait_seconds > 0)
+  {
     deactivate_nonblock(fd);
-
+  }
   return ret;
 }
 
-ssize_t readn(int fd, void *vptr, size_t n)
+/*
+ * readn - 读取固定字节�?
+ * @fd: 文件描述�?
+ * @buf: 接收缓冲�?
+ * @count: 要读取的字节�?
+ * 成功返回count，失败返�?-1，读到EOF返回<count
+ */
+ssize_t readn(int fd, void *buf, size_t count)
 {
-  size_t nleft;
+  size_t nleft = count;
   ssize_t nread;
-  char *ptr;
-  ptr = vptr;
-  nleft = n;
+  char *bufp = (char *)buf;
+
   while (nleft > 0)
   {
-    if ((nread = read(fd, ptr, nleft)) < 0)
+    if ((nread = read(fd, bufp, nleft)) < 0)
     {
       if (errno == EINTR)
-        nread = 0;
-      else
-        return -1;
+        continue;
+      return -1;
     }
     else if (nread == 0)
-      break;
+      return count - nleft;
+
+    bufp += nread;
     nleft -= nread;
-    ptr += nread;
   }
-  return n - nleft;
+
+  return count;
 }
 
-ssize_t writen(int fd, const void *vptr, size_t n)
+/*
+ * writen - 发送固定字节数
+ * @fd: 文件描述�?
+ * @buf: 发送缓冲区
+ * @count: 要读取的字节�?
+ * 成功返回count，失败返�?-1
+ */
+ssize_t writen(int fd, const void *buf, size_t count)
 {
-  size_t nleft;
+  size_t nleft = count;
   ssize_t nwritten;
-  const char *ptr;
+  char *bufp = (char *)buf;
 
-  ptr = vptr;
-  nleft = n;
   while (nleft > 0)
   {
-    if ((nwritten = write(fd, ptr, nleft)) <= 0)
+    if ((nwritten = write(fd, bufp, nleft)) < 0)
     {
-      if (nwritten < 0 && errno == EINTR)
-        nwritten = 0;
-      else
-        return -1;
+      if (errno == EINTR)
+        continue;
+      return -1;
     }
+    else if (nwritten == 0)
+      continue;
+
+    bufp += nwritten;
     nleft -= nwritten;
-    ptr += nwritten;
   }
-  return n;
+
+  return count;
 }
 
-ssize_t readline(int fd, void *vptr, size_t maxlen)
+/*
+ * recv_peek - 仅仅查看套接字缓冲区数据，但不移除数�?
+ * @sockfd: 套接�?
+ * @buf: 接收缓冲�?
+ * @len: 长度
+ * 成功返回>=0，失败返�?-1
+ */
+ssize_t recv_peek(int sockfd, void *buf, size_t len)
 {
-  // ssize_t n, rc;
-  // char c, *ptr;
-  // ptr = vptr;
-  // for (n = 1; n < maxlen; n++) {
-  //   if ((rc = my_read(fd, &c)) == 1) {
-  //     *ptr++ = c;
-  //     if (c == '\n')
-  //       break;
-  //   }
-  //   else if (rc == 0) {
-  //     *ptr = 0;
-  //     return n - 1;
-  //   }
-  //   else
-  //     return -1;
-  // }
-  // *ptr = 0;
-  // return n;
-  return 0;
+  while (1)
+  {
+    int ret = recv(sockfd, buf, len, MSG_PEEK);
+    if (ret == -1 && errno == EINTR)
+      continue;
+    return ret;
+  }
 }
 
-void  send_fd(int  sock_fd, int  send_fd)       //发送网络套接字
+/*
+ * readline - 按行读取数据
+ * @sockfd: 套接�?
+ * @buf: 接收缓冲�?
+ * @maxline: 每行最大长�?
+ * 成功返回>=0，失败返�?-1
+ */
+ssize_t readline(int sockfd, void *buf, size_t maxline)
 {
-  int  ret;
-  struct  msghdr msg;
-  struct  cmsghdr *p_cmsg;
-  struct  iovec vec;
-  char  cmsgbuf[CMSG_SPACE(sizeof(send_fd))];
-  int  *p_fds;
-  char  sendchar = 0;
+  int ret;
+  int nread;
+  char *bufp = buf;
+  int nleft = maxline;
+  int count = 0;
+  while (1)
+  {
+    ret = recv_peek(sockfd, bufp, nleft);
+    if (ret < 0)
+      return ret; // 返回小于0表示失败
+    else if (ret == 0)
+      return ret; //返回0表示对方关闭连接�?
+
+    nread = ret;
+    int i;
+    for (i = 0; i < nread; i++)
+    {
+      if (bufp[i] == '\n')
+      {
+        ret = readn(sockfd, bufp, i + 1);
+        if (ret != i + 1)
+          exit(EXIT_FAILURE);
+        
+        bufp[i+1] = '\0';
+        return ret + count;
+      }
+    }
+    if (nread > nleft)
+      exit(EXIT_FAILURE);
+    nleft -= nread;
+    ret = readn(sockfd, bufp, nread);
+    if (ret != nread)
+      exit(EXIT_FAILURE);
+
+    bufp += nread;
+    count += nread;
+  }
+
+  return -1;
+}
+
+void send_fd(int sock_fd, int fd)
+{
+  int ret;
+  struct msghdr msg;
+  struct cmsghdr *p_cmsg;
+  struct iovec vec;
+  char cmsgbuf[CMSG_SPACE(sizeof(fd))];
+  int *p_fds;
+  char sendchar = 0;
   msg.msg_control = cmsgbuf;
   msg.msg_controllen = sizeof(cmsgbuf);
   p_cmsg = CMSG_FIRSTHDR(&msg);
   p_cmsg->cmsg_level = SOL_SOCKET;
   p_cmsg->cmsg_type = SCM_RIGHTS;
-  p_cmsg->cmsg_len = CMSG_LEN(sizeof(send_fd));
-  p_fds = (int  *)CMSG_DATA(p_cmsg);
-  *p_fds = send_fd;  // 通过传递辅助数据的方式传递文件描述符 
+  p_cmsg->cmsg_len = CMSG_LEN(sizeof(fd));
+  p_fds = (int *)CMSG_DATA(p_cmsg);
+  *p_fds = fd;
 
   msg.msg_name = NULL;
   msg.msg_namelen = 0;
   msg.msg_iov = &vec;
-  msg.msg_iovlen = 1;  //主要目的不是传递数据，故只传1个字符 
+  msg.msg_iovlen = 1;
   msg.msg_flags = 0;
 
   vec.iov_base = &sendchar;
@@ -344,16 +402,16 @@ void  send_fd(int  sock_fd, int  send_fd)       //发送网络套接字
     ERR_EXIT("sendmsg");
 }
 
-int  recv_fd(const   int  sock_fd)                //接收网络套接字
+int recv_fd(const int sock_fd)
 {
-  int  ret;
-  struct  msghdr msg;
-  char  recvchar;
-  struct  iovec vec;
-  int  recv_fd;
-  char  cmsgbuf[CMSG_SPACE(sizeof(recv_fd))];
-  struct  cmsghdr *p_cmsg;
-  int  *p_fd;
+  int ret;
+  struct msghdr msg;
+  char recvchar;
+  struct iovec vec;
+  int recv_fd;
+  char cmsgbuf[CMSG_SPACE(sizeof(recv_fd))];
+  struct cmsghdr *p_cmsg;
+  int *p_fd;
   vec.iov_base = &recvchar;
   vec.iov_len = sizeof(recvchar);
   msg.msg_name = NULL;
@@ -364,7 +422,7 @@ int  recv_fd(const   int  sock_fd)                //接收网络套接字
   msg.msg_controllen = sizeof(cmsgbuf);
   msg.msg_flags = 0;
 
-  p_fd = (int  *)CMSG_DATA(CMSG_FIRSTHDR(&msg));
+  p_fd = (int *)CMSG_DATA(CMSG_FIRSTHDR(&msg));
   *p_fd = -1;
   ret = recvmsg(sock_fd, &msg, 0);
   if (ret != 1)
@@ -374,10 +432,10 @@ int  recv_fd(const   int  sock_fd)                //接收网络套接字
   if (p_cmsg == NULL)
     ERR_EXIT("no passed fd");
 
-  p_fd = (int  *)CMSG_DATA(p_cmsg);
+  p_fd = (int *)CMSG_DATA(p_cmsg);
   recv_fd = *p_fd;
   if (recv_fd == -1)
     ERR_EXIT("no passed fd");
 
-  return  recv_fd;
+  return recv_fd;
 }

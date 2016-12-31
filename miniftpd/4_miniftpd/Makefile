@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall -g
-BIN=miniftpd
+BIN=miniftpd.out
 OBJS=main.o sysutil.o
 
 $(BIN):$(OBJS)

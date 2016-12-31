@@ -1,4 +1,3 @@
-.PHONY:clean
 CC=gcc
 CFLAGS=-Wall -g
 BIN=miniftpd
@@ -9,5 +8,6 @@ $(BIN):$(OBJS)
 %.o:%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
+.PHONY:clean
 clean:
 	rm -f *.o $(BIN)  

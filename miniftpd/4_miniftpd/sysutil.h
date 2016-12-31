@@ -1,4 +1,5 @@
 // Edit by cyj 2016-12-30
+
 #ifndef __SYS_UTIL_H__
 #define __SYS_UTIL_H__
 
@@ -6,7 +7,7 @@
 
 int tcp_server(const char* host, unsigned short port);
 
-int getlocalip(char* ip);                          //获取本机ip地址
+int getlocalip(char* ip);              		         //获取本机ip地址
 
 void activate_nonblock(int fd);                    //设置文件描述fd为非阻塞模式                   
 void deactivate_nonblock(int fd);                  //去掉文件描述fd的非阻塞模式                     
@@ -18,7 +19,7 @@ int connect_timeout(int fd, struct sockaddr_in* addr, unsigned int wait_seconds)
 
 ssize_t readn(int fd, void* buf, size_t count);
 ssize_t writen(int fd, const void* buf, size_t count);
-//ssize_t recv_peek(int sockfd, void* buf, size_t len);
+ssize_t recv_peek(int sockfd, void* buf, size_t len);
 ssize_t readline(int sockfd, void* buf, size_t maxline);
 
 void send_fd(int sock_fd, int fd);                 //发送网络套接字
