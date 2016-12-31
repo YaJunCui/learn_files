@@ -8,3 +8,5 @@ Release/
 *.sdf
 *.exe
 *.suo
+*.o
+*.out
