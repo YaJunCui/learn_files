@@ -2,7 +2,7 @@
 
 #include "session.h"
 
-void begin_session(int conn)
+void begin_session(session_t *sess)
 {
 	int ret = 0;
 	int sockfds[2];
@@ -22,11 +22,13 @@ void begin_session(int conn)
 	if(pid == 0)           //ftp服务进程
 	{
 		close(sockfds[0]);   //ftp服务进程使用 sockfds[1] 与 nobody 进程进行通信
-		handle_child();
+		sess->child_fd = sockfds[1];
+		handle_child(sess);
 	}
 	else                   //nobody进程
 	{
 		close(sockfds[1]);   //nobody进程使用 sockfds[0] 与ftp服务进程进行通信
-		handle_parent();
+		sess->parent_fd = sockfds[0];
+		handle_parent(sess);
 	}
 }

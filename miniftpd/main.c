@@ -11,6 +11,12 @@ int main()
     exit(EXIT_FAILURE);
   }
 
+  session_t sess = 
+  {
+    -1,"","","",                    //控制连接
+    -1,-1                        //父子进程通道
+  };
+
   int listen_fd = tcp_server(NULL,5188);
   int conn;
   pid_t pid;
@@ -30,7 +36,8 @@ int main()
     if(pid == 0)
     {
       close(listen_fd);
-      begin_session(conn);
+      sess.ctrl_fd = conn;
+      begin_session(&sess);
     }
     else
     {
