@@ -41,7 +41,11 @@ int str_all_space(const char *str)      //判断所有的字符是否全为空�
 
 void str_upper(char *str)
 {
-
+	while (*str)
+	{
+		*str = toupper(*str);
+		++str;
+	}
 }
 
 long long str_to_longlong(const char *str)

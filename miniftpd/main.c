@@ -27,6 +27,10 @@ int main()
     printf("str2 not all space\n");
   }
 
+  char str3[] = "abcdDEFgkj";
+  str_upper(str3);
+  printf("%s\n", str3);
+
 
   if(getuid()!=0)
   {
