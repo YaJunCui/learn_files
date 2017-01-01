@@ -24,7 +24,7 @@ int main()
   }
   else
   {
-    printf("str2 not all space\n");
+    printf("str2 not all space \n");
   }
 
   char str3[] = "abcdDEFgkj";
