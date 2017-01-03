@@ -31,6 +31,14 @@ int main()
   str_upper(str3);
   printf("%s\n", str3);
 
+  char *str4 = "9876543219870";
+  long long str4_num = str_to_longlong(str4);
+  printf("%lld\n", str4_num);
+
+  char *str5 = "0711";
+  unsigned int str5_num = str_octal_to_uint(str5);
+  printf("%d\n", str5_num);
+
   if (getuid() != 0)
   {
     fprintf(stderr, "miniftpd : must be started as root\n");

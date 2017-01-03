@@ -50,10 +50,50 @@ void str_upper(char *str)
 
 long long str_to_longlong(const char *str)
 {
-  return atoll(str);
+  long long result = 0;
+  long long mult = 1;
+  unsigned int len = strlen(str);
+  unsigned int i;
+
+  if (len > 15)
+  {
+    return 0;
+  }
+
+  for (i = 0; i < len; ++i)
+  {
+    char ch = str[len - (i + 1)];
+    long long val = 0;
+    if (ch < '0' || ch > '9')
+    {
+      return 0;
+    }
+
+    val = ch - '0';
+    val *= mult;
+    result += val;
+    mult *= 10;
+  }
+
+  return result;
 }
 
 unsigned int str_octal_to_uint(const char *str)
 {
-  return 0;
+  unsigned int result = 0;
+  unsigned int len = strlen(str);
+  unsigned int i = 0;
+
+  for (i = 0; i < len; ++i)
+  {
+    if(str[i] < '0' || '7' < str[i])
+    {
+      return 0;
+    }
+
+    result <<= 3;
+    result += str[i] - '0';
+  }
+
+  return result;
 }
