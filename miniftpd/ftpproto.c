@@ -5,13 +5,13 @@
 #include "ftpproto.h"
 #include "str.h"
 
+static void ftp_reply(session_t *sess, int status, const char *text);
 static void do_user(session_t *sess);
 static void do_pass(session_t *sess);
 
 void handle_child(session_t *sess)
 {
-  writen(sess->ctrl_fd, "220 (miniftpd 0.1)\r\n", strlen("220 (miniftpd 0.1)\r\n"));
-
+  ftp_reply(sess, 220, "(miniftpd 0.1)");
   int ret = 0;
 
   while (1)
@@ -55,18 +55,25 @@ void handle_child(session_t *sess)
   }
 }
 
+void ftp_reply((session_t *sess, int status, const char *text)
+{
+  char buf[1024] = {0};
+  sprintf(buf, "%d %s \r\n", status, text);
+  writen(sess->ctrl_fd, buf, strlen(buf));
+}
+
 void do_user(session_t *sess)
 {
   struct passwd *pw = getpwnam(sess->arg); //获取用户信息
   if (pw == NULL)                          //用户不存在
   {
-    writen(sess->ctrl_fd, "530 Login incorrect.\r\n", strlen("530 Login incorrect.\r\n"));
+    ftp_reply(sess, 530, "Login incorrect.");
   }
   else
   {
   }
 
-  writen(sess->ctrl_fd, "331 Please specify the password.\r\n", strlen("331 Please specify the password.\r\n"));
+  ftp_reply(sess, 331, "Please specify the password.");
 }
 
 void do_pass(session_t *sess)
