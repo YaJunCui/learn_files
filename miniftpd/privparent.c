@@ -5,14 +5,13 @@
 
 void handle_parent(session_t *sess)
 {
-	char cmd;
-	while (1)
-	{
-		read(sess->parent_fd, &cmd, 1);
+  char cmd;
+  while (1)
+  {
+    read(sess->parent_fd, &cmd, 1);
 
-		//处理内部命令
+    //处理内部命令
 
-		//处理命令
-
-	}
+    //处理命令
+  }
 }

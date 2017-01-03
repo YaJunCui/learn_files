@@ -7,4 +7,4 @@
 
 void handle_parent(session_t *sess);
 
-#endif	//__PRIV_PARENT_H__
+#endif // __PRIV_PARENT_H__

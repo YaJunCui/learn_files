@@ -8,49 +8,49 @@
  * @port：       服务器端口
  * 成功返回监听套接字
  */
-int tcp_server(const char* host, unsigned short port)
+int tcp_server(const char *host, unsigned short port)
 {
   int ret = 0;
-  int listen_fd = socket(PF_INET,SOCK_STREAM,0);                      //创建套接字
-  if(listen_fd < 0)
+  int listen_fd = socket(PF_INET, SOCK_STREAM, 0); //创建套接字
+  if (listen_fd < 0)
     ERR_EXIT("tcp_server");
 
   struct sockaddr_in serv_addr;
-  memset(&serv_addr,0,sizeof(serv_addr));
+  memset(&serv_addr, 0, sizeof(serv_addr));
 
   serv_addr.sin_family = AF_INET;
-if(host != NULL)                                                      //填充 IP 地址
+  if (host != NULL) //填充 IP 地址
   {
-    if(inet_aton(host, &serv_addr.sin_addr) == 0)
+    if (inet_aton(host, &serv_addr.sin_addr) == 0)
     {
-      struct hostent* hp;
+      struct hostent *hp;
       hp = gethostbyname(host);
-      if(hp == NULL)
+      if (hp == NULL)
       {
         ERR_EXIT("getlocalip");
       }
-      serv_addr.sin_addr = *(struct in_addr*)hp->h_addr;
+      serv_addr.sin_addr = *(struct in_addr *)hp->h_addr;
     }
   }
   else
   {
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
   }
-  serv_addr.sin_port = htons(port);                                   //绑定端口
+  serv_addr.sin_port = htons(port); //绑定端口
 
-  int on = 1;        
-  ret = setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, (const char*)&on, sizeof(on));      //设置地址重复利用                                   
-  if(ret < 0)
+  int on = 1;
+  ret = setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, (const char *)&on, sizeof(on)); //设置地址重复利用
+  if (ret < 0)
     ERR_EXIT("gethostbyname");
 
-  ret = bind(listen_fd, (struct sockaddr*)&serv_addr, sizeof(serv_addr));       //绑定套接字
-  if(ret < 0)
+  ret = bind(listen_fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)); //绑定套接字
+  if (ret < 0)
   {
     ERR_EXIT("bind");
   }
 
   ret = listen(listen_fd, SOMAXCONN);
-  if(ret < 0)
+  if (ret < 0)
   {
     ERR_EXIT("listen");
   }
@@ -60,15 +60,15 @@ if(host != NULL)                                                      //填充 I
 
 int getlocalip(char *ip)
 {
-	char host[100] = {0};
-	if (gethostname(host, sizeof(host)) < 0)
-		return -1;
-	struct hostent *hp;
-	if ((hp = gethostbyname(host)) == NULL)
-	  return -1;
+  char host[100] = {0};
+  if (gethostname(host, sizeof(host)) < 0)
+    return -1;
+  struct hostent *hp;
+  if ((hp = gethostbyname(host)) == NULL)
+    return -1;
 
-	strcpy(ip, inet_ntoa(*(struct in_addr*)hp->h_addr));
-	return 0;
+  strcpy(ip, inet_ntoa(*(struct in_addr *)hp->h_addr));
+  return 0;
 }
 
 /*
@@ -260,8 +260,8 @@ int connect_timeout(int fd, struct sockaddr_in *addr, unsigned int wait_seconds)
     else if (ret == 1)
     {
       /* ret返回为1，可能有两种情况，一种是连接建立成功，一种是套接字产生错误，*/
-			/* 此时错误信息不会保存至errno变量中，因此，需要调用getsockopt来获取。 */
-			int err;
+      /* 此时错误信息不会保存至errno变量中，因此，需要调用getsockopt来获取。 */
+      int err;
       socklen_t socklen = sizeof(err);
       int sockoptret = getsockopt(fd, SOL_SOCKET, SO_ERROR, &err, &socklen);
       if (sockoptret == -1)
@@ -397,8 +397,8 @@ ssize_t readline(int sockfd, void *buf, size_t maxline)
         ret = readn(sockfd, bufp, i + 1);
         if (ret != i + 1)
           exit(EXIT_FAILURE);
-        
-        bufp[i+1] = '\0';
+
+        bufp[i + 1] = '\0';
         return ret + count;
       }
     }
