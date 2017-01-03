@@ -39,7 +39,7 @@
   do \
   { \
     perror(m); \
-	exit(EXIT_FAILURE); \
+	  exit(EXIT_FAILURE); \
   } \
   while (0)
 

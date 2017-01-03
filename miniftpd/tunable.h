@@ -2,6 +2,7 @@
 #ifndef __TUNABLE_H__
 #define __TUNABLE_H__
 
+// 以下变量用于保存配置文件中对应的配置项
 extern int tunable_pasv_enable;
 extern int tunable_port_enable;
 extern unsigned int tunable_listen_port;
