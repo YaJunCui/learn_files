@@ -44,11 +44,11 @@ void handle_child(session_t *sess)
     str_upper(sess->cmd);
 
     //处理 FTP 命令
-    if(strcmp("USER", sess->cmd) == 0)
+    if (strcmp("USER", sess->cmd) == 0)
     {
       do_user(sess);
     }
-    else if(strcmp("PASS", sess->cmd) == 0)
+    else if (strcmp("PASS", sess->cmd) == 0)
     {
       do_pass(sess);
     }
@@ -57,11 +57,19 @@ void handle_child(session_t *sess)
 
 void do_user(session_t *sess)
 {
+  struct passwd *pw = getpwnam(sess->arg); //获取用户信息
+  if (pw == NULL)                          //用户不存在
+  {
+    writen(sess->ctrl_fd, "530 Login incorrect.\r\n", strlen("530 Login incorrect.\r\n"));
+  }
+  else
+  {
+  }
+
   writen(sess->ctrl_fd, "331 Please specify the password.\r\n", strlen("331 Please specify the password.\r\n"));
 }
 
 void do_pass(session_t *sess)
 {
   writen(sess->ctrl_fd, "230 Login successful.\r\n", strlen("230 Login successful.\r\n"));
-  
 }
