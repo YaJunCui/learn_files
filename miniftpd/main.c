@@ -6,38 +6,38 @@
 
 int main()
 {
-  char *str1 = "    ab";
-  char *str2 = "     ";
+  // char *str1 = "    ab";
+  // char *str2 = "     ";
 
-  if (str_all_space(str1))
-  {
-    printf("str1 all space\n");
-  }
-  else
-  {
-    printf("str1 not all space\n");
-  }
+  // if (str_all_space(str1))
+  // {
+  //   printf("str1 all space\n");
+  // }
+  // else
+  // {
+  //   printf("str1 not all space\n");
+  // }
 
-  if (str_all_space(str2))
-  {
-    printf("str2 all space\n");
-  }
-  else
-  {
-    printf("str2 not all space \n");
-  }
+  // if (str_all_space(str2))
+  // {
+  //   printf("str2 all space\n");
+  // }
+  // else
+  // {
+  //   printf("str2 not all space \n");
+  // }
 
-  char str3[] = "abcdDEFgkj";
-  str_upper(str3);
-  printf("%s\n", str3);
+  // char str3[] = "abcdDEFgkj";
+  // str_upper(str3);
+  // printf("%s\n", str3);
 
-  char *str4 = "9876543219870";
-  long long str4_num = str_to_longlong(str4);
-  printf("%lld\n", str4_num);
+  // char *str4 = "9876543219870";
+  // long long str4_num = str_to_longlong(str4);
+  // printf("%lld\n", str4_num);
 
-  char *str5 = "0711";
-  unsigned int str5_num = str_octal_to_uint(str5);
-  printf("%d\n", str5_num);
+  // char *str5 = "0711";
+  // unsigned int str5_num = str_octal_to_uint(str5);
+  // printf("%d\n", str5_num);
 
   if (getuid() != 0)
   {

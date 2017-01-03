@@ -37,6 +37,9 @@ void handle_child(session_t *sess)
     str_split(sess->cmdline, sess->cmd, sess->arg, ' ');
     printf("cmd=[%s] arg=[%s]\n", sess->cmd, sess->arg);
 
+    //将命令转为大写
+    str_upper(sess->cmd);
+
     //处理 FTP 命令
   }
 }
