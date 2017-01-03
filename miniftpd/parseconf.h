@@ -6,7 +6,7 @@
 typedef struct parseconf_bool_setting
 {
   const char *p_setting_name;
-  char *p_variable;
+  int *p_variable;
 } BOOL_CONFIG;
 
 typedef struct parseconf_uint_setting

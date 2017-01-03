@@ -46,5 +46,6 @@
 #define MAX_COMMAND_LINE    1024
 #define MAX_COMMAND         32
 #define MAX_ARG             1024
+#define MINIFTPD_CONF       "miniftpd.conf"
 
 #endif //__COMMON_H__

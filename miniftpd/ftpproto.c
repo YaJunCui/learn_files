@@ -5,6 +5,9 @@
 #include "ftpproto.h"
 #include "str.h"
 
+static void do_user(session_t *sess);
+static void do_pass(session_t *sess);
+
 void handle_child(session_t *sess)
 {
   writen(sess->ctrl_fd, "220 (miniftpd 0.1)\r\n", strlen("220 (miniftpd 0.1)\r\n"));
@@ -27,7 +30,7 @@ void handle_child(session_t *sess)
       exit(EXIT_SUCCESS);
     }
 
-    printf("cmdline=[%s]\n", sess->cmdline);
+    // printf("cmdline=[%s]\n", sess->cmdline);
 
     //去掉字符串尾部的\r\n
     str_trim_crlf(sess->cmdline);
@@ -41,5 +44,24 @@ void handle_child(session_t *sess)
     str_upper(sess->cmd);
 
     //处理 FTP 命令
+    if(strcmp("USER", sess->cmd) == 0)
+    {
+      do_user(sess);
+    }
+    else if(strcmp("PASS", sess->cmd) == 0)
+    {
+      do_pass(sess);
+    }
   }
+}
+
+void do_user(session_t *sess)
+{
+  writen(sess->ctrl_fd, "331 Please specify the password.\r\n", strlen("331 Please specify the password.\r\n"));
+}
+
+void do_pass(session_t *sess)
+{
+  writen(sess->ctrl_fd, "230 Login successful.\r\n", strlen("230 Login successful.\r\n"));
+  
 }
