@@ -7,4 +7,4 @@
 
 void handle_child(session_t *sess);
 
-#endif	//__FTP_PROTO_H__
+#endif // __FTP_PROTO_H__

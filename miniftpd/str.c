@@ -50,7 +50,7 @@ void str_upper(char *str)
 
 long long str_to_longlong(const char *str)
 {
-	return 0;	
+	return atoll(str);
 }
 
 unsigned int str_octal_to_uint(const char *str)
