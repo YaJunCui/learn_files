@@ -7,7 +7,8 @@
 typedef struct session
 {
   //控制连接
-  int ctrl_fd; //控制连接套接字
+  uid_t uid;         
+  int ctrl_fd;          //控制连接套接字
   char cmdline[MAX_COMMAND_LINE];
   char cmd[MAX_COMMAND];
   char arg[MAX_ARG];

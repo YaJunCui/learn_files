@@ -35,6 +35,9 @@
 #include <sys/syscall.h>
 #include <sys/sendfile.h>
 
+//1、因为宏定义要求只能在一行完成，所以用反斜线可以把多行连接成一行
+//2、不用担心 do{}while(0) 运行的消耗，编译器会自动优化它——只执行一次就结束了
+//3、不需要加';'，因为用户使用 ERR_EXIT(m) 时，会加上 ';'，把 ERR_EXIT(m); 当成语句来使用
 #define ERR_EXIT(m) \
   do \
   { \

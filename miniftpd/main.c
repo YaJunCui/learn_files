@@ -74,8 +74,8 @@ int main()
 
   session_t sess =
       {
-          -1, "", "", "", //控制连接
-          -1, -1          //父子进程通道
+          0, -1, "", "", "",    //控制连接
+          -1, -1                //父子进程通道
       };
 
   int listen_fd = tcp_server(NULL, tunable_listen_port);

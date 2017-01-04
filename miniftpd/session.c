@@ -7,22 +7,6 @@
 
 void begin_session(session_t *sess)
 {
-  struct passwd *pw = getpwnam("nobody");
-  if (pw == NULL)
-  {
-    return;
-  }
-
-  if (setegid(pw->pw_gid) < 0) //将当前进程的有效组id设置为父进程的组id
-  {
-    ERR_EXIT("setegid");
-  }
-
-  if (seteuid(pw->pw_uid) < 0) //将当前进程的有效用户id设置为父进程的用户id
-  {
-    ERR_EXIT("seteuid");
-  }
-
   int ret = 0;
   int sockfds[2];
   ret = socketpair(PF_UNIX, SOCK_STREAM, 0, sockfds); //创建套接字对，用于父子进程间的通信
@@ -46,6 +30,22 @@ void begin_session(session_t *sess)
   }
   else //nobody进程
   {
+    struct passwd *pw = getpwnam("nobody");
+    if (pw == NULL)
+    {
+      return;
+    }
+
+    if (setegid(pw->pw_gid) < 0) //将当前进程的有效组id设置为父进程的组id
+    {
+      ERR_EXIT("setegid");
+    }
+
+    if (seteuid(pw->pw_uid) < 0) //将当前进程的有效用户id设置为父进程的用户id
+    {
+      ERR_EXIT("seteuid");
+    }
+
     close(sockfds[1]); //nobody进程使用 sockfds[0] 与ftp服务进程进行通信
     sess->parent_fd = sockfds[0];
     handle_parent(sess);
