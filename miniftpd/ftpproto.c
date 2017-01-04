@@ -8,6 +8,7 @@
 #include "ftpcodes.h"
 
 static void ftp_reply(session_t *sess, int status, const char *text);
+static void ftp_lreply(session_t *sess, int status, const char *text);
 
 static void do_user(session_t *sess);
 static void do_pass(session_t *sess);
@@ -84,8 +85,8 @@ static ftpcmd_t ctrl_cmds[] = {
 	{"NOOP",	do_noop	},
 	{"HELP",	do_help	},
 	{"STOU",	NULL	},
-	{"ALLO",	NULL	},
-	{ NULL,		NULL	}
+	{"ALLO",	NULL	} //,
+	// { NULL,		NULL	}
 };
 
 void handle_child(session_t *sess)
@@ -123,18 +124,27 @@ void handle_child(session_t *sess)
     str_upper(sess->cmd);
 
     //处理 FTP 命令
-    // if (strcmp("USER", sess->cmd) == 0)
-    // {
-    //   do_user(sess);
-    // }
-    // else if (strcmp("PASS", sess->cmd) == 0)
-    // {
-    //   do_pass(sess);
-    // }
     int i = 0;
-    while ()
+    int size = sizeof(ctrl_cmds)/sizeof(ctrl_cmds[0]);
+    for (i = 0; i < size; ++i)
     {
-      
+      if(strcmp(ctrl_cmds[i].cmd, sess->cmd) == 0)
+      {
+        if(ctrl_cmds[i].cmd_handler != NULL)
+        {
+           ctrl_cmds[i].cmd_handler(sess);
+        }
+        else
+        {
+          ftp_reply(sess, FTP_COMMANDNOTIMPL, "Unimplement command.");
+        }
+        break;
+      }
+    }
+
+    if(i == size)                     //如果没有找到命令，则相应 FTP_BADCMD
+    {
+      ftp_reply(sess, FTP_BADCMD, "Unknown command.");
     }
   }
 }
@@ -143,6 +153,13 @@ void ftp_reply(session_t *sess, int status, const char *text)
 {
   char buf[1024] = {0};
   sprintf(buf, "%d %s \r\n", status, text);
+  writen(sess->ctrl_fd, buf, strlen(buf));
+}
+
+void ftp_lreply(session_t *sess, int status, const char *text)
+{
+  char buf[1024] = {0};
+  sprintf(buf, "%d-%s \r\n", status, text);
   writen(sess->ctrl_fd, buf, strlen(buf));
 }
 
@@ -187,5 +204,142 @@ void do_pass(session_t *sess)
   setegid(pw->pw_gid);
   seteuid(pw->pw_uid);
   chdir(pw->pw_dir);              //转到家目录
-  ftp_reply(sess, FTP_LOGINOK, "Login successful.\r\n");
+  ftp_reply(sess, FTP_LOGINOK, "Login successful.");
+}
+
+void do_cwd(session_t *sess)
+{
+
+}
+
+void do_cdup(session_t *sess)
+{
+
+}
+
+void do_quit(session_t *sess)
+{
+
+}
+
+void do_port(session_t *sess)
+{
+
+}
+
+void do_pasv(session_t *sess)
+{
+
+}
+
+void do_type(session_t *sess)
+{
+
+}
+
+void do_retr(session_t *sess)
+{
+
+}
+
+void do_stor(session_t *sess)
+{
+
+}
+
+void do_appe(session_t *sess)
+{
+
+}
+
+void do_list(session_t *sess)
+{
+
+}
+
+void do_nlst(session_t *sess)
+{
+
+}
+
+void do_rest(session_t *sess)
+{
+
+}
+
+void do_abor(session_t *sess)
+{
+
+}
+
+void do_pwd(session_t *sess)
+{
+  ftp_reply(sess, FTP_MKDIROK, "")
+}
+void do_mkd(session_t *sess)
+{
+
+}
+
+void do_rmd(session_t *sess)
+{
+}
+
+void do_dele(session_t *sess)
+{
+
+}
+
+void do_rnfr(session_t *sess)
+{
+
+}
+
+void do_rnto(session_t *sess)
+{
+
+}
+
+void do_site(session_t *sess)
+{
+
+}
+
+void do_syst(session_t *sess)
+{
+  ftp_reply(sess, FTP_SYSTOK, "UNIX Type: L18");
+}
+
+void do_feat(session_t *sess)
+{
+  ftp_lreply(sess, FTP_FEAT, "Features:");
+  writen(sess->ctrl_fd, " EPRT\r\n", strlen(" EPRT\r\n"));
+  writen(sess->ctrl_fd, " EPSV\r\n", strlen(" EPSV\r\n"));
+  writen(sess->ctrl_fd, " MDTM\r\n", strlen(" MDTM\r\n"));
+  writen(sess->ctrl_fd, " PASV\r\n", strlen(" PASV\r\n"));
+  writen(sess->ctrl_fd, " REST STREAM\r\n", strlen(" REST STREAM\r\n"));
+  writen(sess->ctrl_fd, " SIZE\r\n", strlen(" SIZE\r\n"));
+  writen(sess->ctrl_fd, " TVFS\r\n", strlen(" TVFS\r\n"));
+  writen(sess->ctrl_fd, " UTF8\r\n", strlen(" UTF8\r\n"));
+  ftp_reply(sess, FTP_FEAT, "End");
+}
+
+void do_size(session_t *sess)
+{
+
+}
+
+void do_stat(session_t *sess)
+{
+
+}
+
+void do_noop(session_t *sess)
+{
+
+}
+
+void do_help(session_t *sess)
+{
+
 }
