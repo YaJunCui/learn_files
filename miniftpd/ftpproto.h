@@ -14,5 +14,6 @@ typedef struct ftpcmd              //命令与命令操作函数的映射
 } ftpcmd_t;
 
 void handle_child(session_t *sess);
+int list_common(void);
 
 #endif // __FTP_PROTO_H__

@@ -40,54 +40,52 @@ static void do_noop(session_t *sess);
 static void do_help(session_t *sess);
 
 static ftpcmd_t ctrl_cmds[] = {
-	/* 访问控制命令 */
-	{"USER",	do_user	},
-	{"PASS",	do_pass	},
-	{"CWD",		do_cwd	},
-	{"XCWD",	do_cwd	},
-	{"CDUP",	do_cdup	},
-	{"XCUP",	do_cdup	},
-	{"QUIT",	do_quit	},
-	{"ACCT",	NULL	},
-	{"SMNT",	NULL	},
-	{"REIN",	NULL	},
+    /* 访问控制命令 */
+    {"USER", do_user},
+    {"PASS", do_pass},
+    {"CWD", do_cwd},
+    {"XCWD", do_cwd},
+    {"CDUP", do_cdup},
+    {"XCUP", do_cdup},
+    {"QUIT", do_quit},
+    {"ACCT", NULL},
+    {"SMNT", NULL},
+    {"REIN", NULL},
 
-	/* 传输参数命令 */
-	{"PORT",	do_port	},
-	{"PASV",	do_pasv	},
-	{"TYPE",	do_type	},
-	{"STRU",	NULL	},
-	{"MODE",	NULL	},
+    /* 传输参数命令 */
+    {"PORT", do_port},
+    {"PASV", do_pasv},
+    {"TYPE", do_type},
+    {"STRU", NULL},
+    {"MODE", NULL},
 
-	/* 服务命令 */
-	{"RETR",	do_retr	},
-	{"STOR",	do_stor	},
-	{"APPE",	do_appe	},
-	{"LIST",	do_list	},
-	{"NLST",	do_nlst	},
-	{"REST",	do_rest	},
-	{"ABOR",	do_abor	},
-	{"\377\364\377\362ABOR", do_abor},
-	{"PWD",		do_pwd	},
-	{"XPWD",	do_pwd	},
-	{"MKD",		do_mkd	},
-	{"XMKD",	do_mkd	},
-	{"RMD",		do_rmd	},
-	{"XRMD",	do_rmd	},
-	{"DELE",	do_dele	},
-	{"RNFR",	do_rnfr	},
-	{"RNTO",	do_rnto	},
-	{"SITE",	do_site	},
-	{"SYST",	do_syst	},
-	{"FEAT",	do_feat },
-	{"SIZE",	do_size	},
-	{"STAT",	do_stat	},
-	{"NOOP",	do_noop	},
-	{"HELP",	do_help	},
-	{"STOU",	NULL	},
-	{"ALLO",	NULL	} //,
-	// { NULL,		NULL	}
-};
+    /* 服务命令 */
+    {"RETR", do_retr},
+    {"STOR", do_stor},
+    {"APPE", do_appe},
+    {"LIST", do_list},
+    {"NLST", do_nlst},
+    {"REST", do_rest},
+    {"ABOR", do_abor},
+    {"\377\364\377\362ABOR", do_abor},
+    {"PWD", do_pwd},
+    {"XPWD", do_pwd},
+    {"MKD", do_mkd},
+    {"XMKD", do_mkd},
+    {"RMD", do_rmd},
+    {"XRMD", do_rmd},
+    {"DELE", do_dele},
+    {"RNFR", do_rnfr},
+    {"RNTO", do_rnto},
+    {"SITE", do_site},
+    {"SYST", do_syst},
+    {"FEAT", do_feat},
+    {"SIZE", do_size},
+    {"STAT", do_stat},
+    {"NOOP", do_noop},
+    {"HELP", do_help},
+    {"STOU", NULL},
+    {"ALLO", NULL}};
 
 void handle_child(session_t *sess)
 {
@@ -110,8 +108,6 @@ void handle_child(session_t *sess)
       exit(EXIT_SUCCESS);
     }
 
-    // printf("cmdline=[%s]\n", sess->cmdline);
-
     //去掉字符串尾部的\r\n
     str_trim_crlf(sess->cmdline);
     printf("cmdline=[%s]\n", sess->cmdline);
@@ -125,14 +121,14 @@ void handle_child(session_t *sess)
 
     //处理 FTP 命令
     int i = 0;
-    int size = sizeof(ctrl_cmds)/sizeof(ctrl_cmds[0]);
+    int size = sizeof(ctrl_cmds) / sizeof(ctrl_cmds[0]);
     for (i = 0; i < size; ++i)
     {
-      if(strcmp(ctrl_cmds[i].cmd, sess->cmd) == 0)
+      if (strcmp(ctrl_cmds[i].cmd, sess->cmd) == 0)
       {
-        if(ctrl_cmds[i].cmd_handler != NULL)
+        if (ctrl_cmds[i].cmd_handler != NULL)
         {
-           ctrl_cmds[i].cmd_handler(sess);
+          ctrl_cmds[i].cmd_handler(sess);
         }
         else
         {
@@ -142,7 +138,7 @@ void handle_child(session_t *sess)
       }
     }
 
-    if(i == size)                     //如果没有找到命令，则相应 FTP_BADCMD
+    if (i == size) //如果没有找到命令，则相应 FTP_BADCMD
     {
       ftp_reply(sess, FTP_BADCMD, "Unknown command.");
     }
@@ -176,6 +172,150 @@ void do_user(session_t *sess)
   ftp_reply(sess, FTP_GIVEPWORD, "Please specify the password.");
 }
 
+int list_common(void)
+{
+  DIR *dir = opendir(".");
+  if (dir == NULL)
+  {
+    return 0;
+  }
+
+  struct dirent *dt;
+  struct stat sbuf;
+  while ((dt = readdir(dir)) != NULL)
+  {
+    if (lstat(dt->d_name, &sbuf) < 0 || dt->d_name[0] == '.')
+    {
+      continue;
+    }
+
+    char perms[] = "----------"; //权限位
+    perms[0] = '?';
+
+    mode_t mode = sbuf.st_mode;
+    switch (mode & S_IFMT)
+    {
+    case S_IFREG:           //普通文件
+      perms[0] = '-';
+      break;
+
+    case S_IFDIR:           //文件夹
+      perms[0] = 'd';
+      break;
+
+    case S_IFLNK:           //符号连接文件
+      perms[0] = 'l';
+      break;
+
+    case S_IFIFO:           //管道文件
+      perms[0] = 'p';
+      break;
+
+    case S_IFSOCK:          //socket
+      perms[0] = 's';
+      break;
+
+    case S_IFCHR:           //字符设备文件
+      perms[0] = 'c';
+      break;
+
+    case S_IFBLK:           //块设备文件
+      perms[0] = 'b';
+      break;
+
+    default:
+      break;
+    }
+
+    if(mode & S_IRUSR)        //当前用户的读、写、执行权限
+    {
+      perms[1] = 'r';
+    }
+    if(mode & S_IWUSR)
+    {
+      perms[2] = 'w';
+    }
+    if(mode & S_IXUSR)
+    {
+      perms[3] = 'x';
+    }
+
+    if (mode & S_IRGRP)       //组用户的读、写、执行权限
+    {
+      perms[4] = 'r';
+    }
+    if (mode & S_IWGRP)
+    {
+      perms[5] = 'w';
+    }
+    if (mode & S_IXGRP)
+    {
+      perms[6] = 'x';
+    }
+
+    if (mode & S_IROTH)       //其他用户的读、写、执行权限
+    {
+      perms[7] = 'r';
+    }
+    if (mode & S_IWOTH)
+    {
+      perms[8] = 'w';
+    }
+    if (mode & S_IXOTH)
+    {
+      perms[9] = 'x';
+    }
+
+    if (mode & S_ISUID)                         //特殊权限的处理
+    {
+      perms[3] = (perms[3] == 'x') ? 's' : 'S';
+    }
+    if (mode & S_ISGID)
+    {
+      perms[6] = (perms[6] == 'x') ? 's' : 'S';
+    }
+    if (mode & S_ISVTX)
+    {
+      perms[9] = (perms[9] == 'x') ? 't' : 'T';
+    }
+
+    char buf[1024] = {0};
+    int off = 0;                                       //格式化后的字符串的长度
+
+    off += sprintf(buf, "%s ", perms);
+    off += sprintf(buf + off, "%3lu %-8d %-8d ",         //连接数、用户id、组id
+                   sbuf.st_nlink, sbuf.st_uid, sbuf.st_gid);
+    off += sprintf(buf + off, "%8ld ", sbuf.st_size);   //文件大小
+
+    const char *p_date_format;
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    time_t local_time = tv.tv_sec;
+
+    if ((local_time - sbuf.st_mtime) > 182 * 24 * 60 * 60)
+    {
+      p_date_format = "%b %e  %Y";
+    }
+    else
+    {
+      p_date_format = "%b %e  %H:%M";
+    }
+
+    char date_buf[64] = {0};                                    //文件的日期
+    struct tm* p_tm = localtime(&sbuf.st_mtime);
+    strftime(date_buf, sizeof(date_buf), p_date_format, p_tm);
+    off += sprintf(buf + off, "%s ", date_buf); 
+
+    sprintf(buf + off, "%s\r\n", dt->d_name);                    //文件名
+
+    printf("%s", buf);
+  } //while 
+
+  closedir(dir);
+
+  return 0;
+}
+
 void do_pass(session_t *sess)
 {
   struct passwd *pw = getpwuid(sess->uid); //获取用户信息
@@ -186,7 +326,7 @@ void do_pass(session_t *sess)
   }
 
   struct spwd *sp = getspnam(pw->pw_name);
-  if(sp == NULL)
+  if (sp == NULL)
   {
     ftp_reply(sess, FTP_LOGINERR, "Login incorrect.");
     return;
@@ -195,7 +335,7 @@ void do_pass(session_t *sess)
   //明文加密，然后比较影子文件中的密码
   char *encrypted_pass = crypt(sess->arg, sp->sp_pwdp);
   //验证密码
-  if(strcmp(encrypted_pass, sp->sp_pwdp) != 0)
+  if (strcmp(encrypted_pass, sp->sp_pwdp) != 0)
   {
     ftp_reply(sess, FTP_LOGINERR, "Login incorrect.");
     return;
@@ -203,82 +343,94 @@ void do_pass(session_t *sess)
 
   setegid(pw->pw_gid);
   seteuid(pw->pw_uid);
-  chdir(pw->pw_dir);              //转到家目录
+  chdir(pw->pw_dir); //转到家目录
   ftp_reply(sess, FTP_LOGINOK, "Login successful.");
 }
 
 void do_cwd(session_t *sess)
 {
+  char text[1024] = {0};
+  char dir[1024 + 1] = {0};
+  getcwd(dir, 1024);
+  sprintf(text, "\"%s\"", dir);
 
+  ftp_reply(sess, FTP_MKDIROK, text);
 }
 
 void do_cdup(session_t *sess)
 {
-
 }
 
 void do_quit(session_t *sess)
 {
-
 }
 
 void do_port(session_t *sess)
 {
-
 }
 
 void do_pasv(session_t *sess)
 {
-
 }
 
 void do_type(session_t *sess)
 {
-
+  if (strcmp(sess->arg, "A") == 0)
+  {
+    sess->is_ascii = 1;
+    ftp_reply(sess, FTP_TYPEOK, "Switching to ASCII mode.");
+  }
+  else if (strcmp(sess->arg, "I") == 0)
+  {
+    sess->is_ascii = 0;
+    ftp_reply(sess, FTP_TYPEOK, "Switching to Binary mode.");
+  }
+  else
+  {
+    ftp_reply(sess, FTP_BADCMD, "Unrecognised TYPE command.");
+  }
 }
 
 void do_retr(session_t *sess)
 {
-
 }
 
 void do_stor(session_t *sess)
 {
-
 }
 
 void do_appe(session_t *sess)
 {
-
 }
 
 void do_list(session_t *sess)
 {
-
 }
 
 void do_nlst(session_t *sess)
 {
-
 }
 
 void do_rest(session_t *sess)
 {
-
 }
 
 void do_abor(session_t *sess)
 {
-
 }
 
 void do_pwd(session_t *sess)
 {
-  ftp_reply(sess, FTP_MKDIROK, "")
+  char text[1024] = {0};
+  char dir[1024 + 1] = {0};
+  getcwd(dir, 1024);
+  sprintf(text, "\"%s\"", dir);
+
+  ftp_reply(sess, FTP_MKDIROK, text);
 }
+
 void do_mkd(session_t *sess)
 {
-
 }
 
 void do_rmd(session_t *sess)
@@ -287,22 +439,18 @@ void do_rmd(session_t *sess)
 
 void do_dele(session_t *sess)
 {
-
 }
 
 void do_rnfr(session_t *sess)
 {
-
 }
 
 void do_rnto(session_t *sess)
 {
-
 }
 
 void do_site(session_t *sess)
 {
-
 }
 
 void do_syst(session_t *sess)
@@ -326,20 +474,16 @@ void do_feat(session_t *sess)
 
 void do_size(session_t *sess)
 {
-
 }
 
 void do_stat(session_t *sess)
 {
-
 }
 
 void do_noop(session_t *sess)
 {
-
 }
 
 void do_help(session_t *sess)
 {
-
 }
