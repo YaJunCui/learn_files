@@ -75,13 +75,15 @@ int main()
   }
 
   session_t sess =
-      {
-          0, -1, "", "", "", //控制连接
-          NULL, -1, -1,      //数据连接
-          -1, -1,            //父子进程通道
-          0                  //是否为 ASCII 模式
-      };
+  {
+      0, -1, "", "", "",                  //控制连接
+      NULL, -1, -1,                       //数据连接
+      -1, -1,                             //父子进程通道
+      0                                   //是否为 ASCII 模式
+  };
 
+  signal(SIGCHLD, SIG_IGN);
+  
   int listen_fd = tcp_server(NULL, tunable_listen_port);
   int conn;
   pid_t pid;
