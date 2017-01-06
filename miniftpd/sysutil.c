@@ -2,6 +2,44 @@
 
 #include "sysutil.h"
 
+int tcp_client(unsigned short port)
+{
+  int ret = 0;
+  int sock = socket(PF_INET, SOCK_STREAM, 0);
+  if(sock < 0)
+  {
+    ERR_EXIT("tcp_client");
+  }
+
+  if(port > 0)               //只有 PORT 模式才需要绑定，此时 port 不为 0
+  {
+    int on = 1;
+    ret = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR,
+                     (const char *)&on, sizeof(on)); //设置地址重复利用
+    if (ret < 0)
+    {
+      ERR_EXIT("setsockopt");
+    }
+
+    char ip[16] = {0};
+    getlocalip(ip);                                   //获取本机 IP 地址
+    struct sockaddr_in local_addr;
+    memset(&local_addr, 0, sizeof(local_addr));
+
+    local_addr.sin_family = AF_INET;
+    local_addr.sin_port = htons(port);
+    local_addr.sin_addr.s_addr = inet_addr(ip);
+
+    ret = bind(sock, (struct sockaddr *)&local_addr, sizeof(local_addr));
+    if(ret < 0)
+    {
+      ERR_EXIT("bind");
+    }
+  }
+  
+  return sock;
+}
+
 /*
  * tcp_server - 启动 tcp 服务器
  * @host:       服务器 IP 地址或者服务器主机名
@@ -41,7 +79,9 @@ int tcp_server(const char *host, unsigned short port)
   int on = 1;
   ret = setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, (const char *)&on, sizeof(on)); //设置地址重复利用
   if (ret < 0)
-    ERR_EXIT("gethostbyname");
+  {
+    ERR_EXIT("setsockopt");
+  }
 
   ret = bind(listen_fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)); //绑定套接字
   if (ret < 0)
@@ -58,17 +98,47 @@ int tcp_server(const char *host, unsigned short port)
   return listen_fd;
 }
 
+// int getlocalip(char *ip)
+// {
+//   char host[100] = {0};
+//   if (gethostname(host, sizeof(host)) < 0)
+//     return -1;
+//   struct hostent *hp;
+//   if ((hp = gethostbyname(host)) == NULL)
+//     return -1;
+
+//   strcpy(ip, inet_ntoa(*(struct in_addr *)hp->h_addr));
+
+//   return 0;
+// }
+
 int getlocalip(char *ip)
 {
-  char host[100] = {0};
-  if (gethostname(host, sizeof(host)) < 0)
-    return -1;
-  struct hostent *hp;
-  if ((hp = gethostbyname(host)) == NULL)
-    return -1;
 
-  strcpy(ip, inet_ntoa(*(struct in_addr *)hp->h_addr));
-  return 0;
+  int sock_get_ip;
+
+  struct sockaddr_in *sin;
+  struct ifreq ifr_ip;            // ifreq 用来保存某个接口的信息
+
+  if ((sock_get_ip = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+  {
+    printf("socket create fail...GetLocalIp!\n");
+    return 0;
+  }
+
+  memset(&ifr_ip, 0, sizeof(ifr_ip));
+  strncpy(ifr_ip.ifr_name, "eth0", sizeof(ifr_ip.ifr_name) - 1);
+  // SIOCGIFADDR 获得接口的地址
+  if (ioctl(sock_get_ip, SIOCGIFADDR, &ifr_ip) < 0)
+  {
+    return 0;
+  }
+  sin = (struct sockaddr_in *)&ifr_ip.ifr_addr;
+  strcpy(ip, inet_ntoa(sin->sin_addr));
+
+  close(sock_get_ip);
+
+  return 1;
 }
 
 /*

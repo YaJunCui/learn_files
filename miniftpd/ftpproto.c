@@ -6,9 +6,16 @@
 #include "ftpproto.h"
 #include "str.h"
 #include "ftpcodes.h"
+#include "tunable.h"
 
 static void ftp_reply(session_t *sess, int status, const char *text);
 static void ftp_lreply(session_t *sess, int status, const char *text);
+
+int list_common(session_t *sess);
+static int get_transfer_fd(session_t *sess);
+
+int port_active(session_t *sess);
+int pasv_active(session_t *sess);
 
 static void do_user(session_t *sess);
 static void do_pass(session_t *sess);
@@ -159,6 +166,77 @@ void ftp_lreply(session_t *sess, int status, const char *text)
   writen(sess->ctrl_fd, buf, strlen(buf));
 }
 
+int port_active(session_t *sess)
+{
+  if(sess->port_addr != NULL)
+  {
+    if(pasv_active(sess))
+    {
+      fprintf(stderr, "both port and pasv are active.");
+      exit(EXIT_FAILURE);
+    }
+    return 1;    
+  }
+  return 0;
+}
+
+int pasv_active(session_t *sess)
+{
+  if(sess->pasv_listen_fd != -1)
+  {
+    if(port_active(sess))
+    {
+      fprintf(stderr, "both port and pasv are active");
+      exit(EXIT_FAILURE);
+    }
+    return 1;
+  }
+
+  return 0;
+}
+
+int get_transfer_fd(session_t *sess)
+{
+  int ret = 0;
+  // 检测是否收到 PORT 和 PASV 命令
+  if(!port_active(sess) && !pasv_active(sess))
+  {
+    return 0;
+  }
+
+  if(port_active(sess))         //如果是主动模式
+  {
+    int fd = tcp_client(0);     //创建套接字
+    ret = connect_timeout(fd, sess->port_addr, tunable_connect_timeout);
+    if(ret < 0)                 //连接失败，关闭套接字，然后返回 0
+    {
+      close(fd);
+      return 0;
+    }
+    sess->data_fd = fd;
+  }
+
+  if(sess->port_addr != NULL)
+  {
+    free(sess->port_addr);
+    sess->port_addr = NULL;
+  }
+
+  if(pasv_active(sess))
+  {
+    int fd = accept_timeout(sess->pasv_listen_fd, NULL, tunable_accept_timeout);
+    if(fd == -1)
+    {
+      return 0;
+    }
+    close(sess->pasv_listen_fd); 
+
+    sess->data_fd = fd;
+  }
+
+  return 1;
+}
+
 void do_user(session_t *sess)
 {
   struct passwd *pw = getpwnam(sess->arg); //获取用户信息
@@ -172,7 +250,7 @@ void do_user(session_t *sess)
   ftp_reply(sess, FTP_GIVEPWORD, "Please specify the password.");
 }
 
-int list_common(void)
+int list_common(session_t *sess)
 {
   DIR *dir = opendir(".");
   if (dir == NULL)
@@ -298,17 +376,27 @@ int list_common(void)
     }
     else
     {
-      p_date_format = "%b %e  %H:%M";
+      p_date_format = "%b %e %H:%M";
     }
 
     char date_buf[64] = {0};                                    //文件的日期
     struct tm* p_tm = localtime(&sbuf.st_mtime);
     strftime(date_buf, sizeof(date_buf), p_date_format, p_tm);
-    off += sprintf(buf + off, "%s ", date_buf); 
+    off += sprintf(buf + off, "%s ", date_buf);
 
-    sprintf(buf + off, "%s\r\n", dt->d_name);                    //文件名
+    if (S_ISLNK(sbuf.st_mode))                                  //文件名
+    {
+      char tmp[1024] = {0};
+      readlink(dt->d_name, tmp, sizeof(tmp));       //获取连接文件所指的文件
+      off += sprintf(buf + off, "%s -> %s\r\n", dt->d_name, tmp);
+    }
+    else
+    {
+      off += sprintf(buf + off, "%s\r\n", dt->d_name); 
+    }
 
-    printf("%s", buf);
+    //printf("%s", buf);
+    writen(sess->data_fd, buf, strlen(buf));
   } //while 
 
   closedir(dir);
@@ -367,10 +455,52 @@ void do_quit(session_t *sess)
 
 void do_port(session_t *sess)
 {
+  unsigned int v[6];
+  sscanf(sess->arg, "%u,%u,%u,%u,%u,%u", //将字符串通过相应的格式，格式化到相应变量中
+         &v[2], &v[3], &v[4], &v[5], &v[0], &v[1]);
+  sess->port_addr = (struct sockaddr_in*)malloc(sizeof(struct sockaddr_in));
+  memset(sess->port_addr, 0, sizeof(struct sockaddr_in));
+  sess->port_addr->sin_family = AF_INET;
+  unsigned char *p = (unsigned char*)&sess->port_addr->sin_port;
+  p[0] = v[0];
+  p[1] = v[1];
+
+  p = (unsigned char*)&sess->port_addr->sin_addr;
+  p[0] = v[2];
+  p[1] = v[3];
+  p[2] = v[4];
+  p[3] = v[5];
+
+  ftp_reply(sess, FTP_PORTOK, "PORT command successful. Consider using PASV.");
 }
 
 void do_pasv(session_t *sess)
 {
+  int ret = 0;
+  char ip[16] = {0};
+  getlocalip(ip);                                //获取本机 IP 地址
+
+  printf("%s\n", ip);
+
+  sess->pasv_listen_fd = tcp_server(ip, 0);
+  struct sockaddr_in addr;
+  socklen_t addr_len = sizeof(addr);
+
+  ret = getsockname(sess->pasv_listen_fd, (struct sockaddr *)&addr, &addr_len);
+  if(ret < 0)
+  {
+    ERR_EXIT("getsockname");
+  }
+
+  uint16_t port = ntohs(addr.sin_port);          //将网路字节序转为主机字节序
+  unsigned int v[4];
+  sscanf(ip, "%u.%u.%u.%u", &v[0], &v[1], &v[2], &v[3]);
+
+  char text[1024] = {0};
+  sprintf(text, "Entering Passive Mode (%u,%u,%u,%u,%u,%u).",
+          v[0], v[1], v[2], v[3], port >> 8, port & 0xFF);
+
+  ftp_reply(sess, FTP_PASVOK, text);
 }
 
 void do_type(session_t *sess)
@@ -405,6 +535,25 @@ void do_appe(session_t *sess)
 
 void do_list(session_t *sess)
 {
+  //创建数据连接
+  if(get_transfer_fd(sess) == 0)
+  {
+    ftp_reply(sess, FTP_BADSENDCONN, "Use PORT or PASV first.");
+    return;
+  }
+
+  // 150
+  ftp_reply(sess, FTP_DATACONN, "Here comes the directory listening.");
+
+  // 传输列表
+  list_common(sess);
+
+  //关闭数据套接字
+  close(sess->data_fd);
+  sess->data_fd = -1;
+
+  // 226
+  ftp_reply(sess, FTP_TRANSFEROK, "Directory send OK.");
 }
 
 void do_nlst(session_t *sess)
