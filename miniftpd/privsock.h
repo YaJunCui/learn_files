@@ -27,4 +27,13 @@ char priv_sock_get_cmd(int fd);                         //接收命令（父->�
 void priv_sock_send_result(int fd, char res);           //发送结果（父->子）
 char priv_sock_get_result(int fd);                      //接收结果（子->父）
 
+void priv_sock_send_int(int fd, int the_int);           //发送一个整数
+int priv_sock_get_int(int fd);                          //接收一个整数
+
+void priv_sock_send_buf(int fd, const char *buf, unsigned int len); //发送字符串
+void priv_sock_recv_buf(int fd, char *buf, unsigned int len);       //接收字符串
+
+void priv_sock_send_fd(int sock_fd, int fd);            //发送文件描述符
+int priv_sock_recv_fd(int sock_fd);                     //接收文件描述符
+
 #endif //  __PRIV_SOCK_H__
