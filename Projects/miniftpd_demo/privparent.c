@@ -1,4 +1,4 @@
-#include "privparent.h"
+ï»¿#include "privparent.h"
 #include "privsock.h"
 #include "sysutil.h"
 #include "tunable.h"
@@ -51,8 +51,8 @@ void handle_parent(session_t *sess)
 	while (1) {
 		//read(sess->parent_fd, &cmd, 1);
 		cmd = priv_sock_get_cmd(sess->parent_fd);
-		// ½âÎöÄÚ²¿ÃüÁî
-		// ´¦ÀíÄÚ²¿ÃüÁî
+		// è§£æžå†…éƒ¨å‘½ä»¤
+		// å¤„ç†å†…éƒ¨å‘½ä»¤
 		switch (cmd) {
 		case PRIV_SOCK_GET_DATA_SOCK:
 			privop_pasv_get_data_sock(sess);
@@ -73,10 +73,10 @@ void handle_parent(session_t *sess)
 
 static void privop_pasv_get_data_sock(session_t *sess)
 {
-	/*
-	nobody½ø³Ì½ÓÊÕPRIV_SOCK_GET_DATA_SOCKÃüÁî
-½øÒ»²½½ÓÊÕÒ»¸öÕûÊý£¬Ò²¾ÍÊÇport
-½ÓÊÕÒ»¸ö×Ö·û´®£¬Ò²¾ÍÊÇip
+  /*
+	nobodyè¿›ç¨‹æŽ¥æ”¶PRIV_SOCK_GET_DATA_SOCKå‘½ä»¤
+è¿›ä¸€æ­¥æŽ¥æ”¶ä¸€ä¸ªæ•´æ•°ï¼Œä¹Ÿå°±æ˜¯port
+æŽ¥æ”¶ä¸€ä¸ªå­—ç¬¦ä¸²ï¼Œä¹Ÿå°±æ˜¯ip
 
 fd = socket 
 bind(20)
@@ -86,20 +86,21 @@ OK
 send_fd
 BAD
 */
-	unsigned short port = (unsigned short)priv_sock_get_int(sess->parent_fd);
-	char ip[16] = {0};
-	priv_sock_recv_buf(sess->parent_fd, ip, sizeof(ip));
+  unsigned short port = (unsigned short)priv_sock_get_int(sess->parent_fd);
+  char ip[16] = {0};
+  priv_sock_recv_buf(sess->parent_fd, ip, sizeof(ip));
 
-	struct sockaddr_in addr;
-	memset(&addr, 0, sizeof(addr));
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons(port);
-	addr.sin_addr.s_addr = inet_addr(ip);
+  struct sockaddr_in addr;
+  memset(&addr, 0, sizeof(addr));
+  addr.sin_family = AF_INET;
+  addr.sin_port = htons(port);
+  addr.sin_addr.s_addr = inet_addr(ip);
 
-	int fd = tcp_client(20);
-	if (fd == -1) {
-		priv_sock_send_result(sess->parent_fd, PRIV_SOCK_RESULT_BAD);
-		return;
+  int fd = tcp_client(20);
+  if (fd == -1)
+  {
+    priv_sock_send_result(sess->parent_fd, PRIV_SOCK_RESULT_BAD);
+    return;
 	}
 	if (connect_timeout(fd, &addr, tunable_connect_timeout) < 0) {
 		close(fd);

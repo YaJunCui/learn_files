@@ -65,9 +65,10 @@ void priv_sock_send_cmd(int fd, char cmd)     //发送命令（子->父）
 char priv_sock_get_cmd(int fd)                //接收命令（父->子）
 {
   int ret = 0;
-  char res = '\0';
+  char res;
   ret = readn(fd, &res, sizeof(res));
-  if(ret == sizeof(res))
+
+  if(ret != sizeof(res))
   {
     fprintf(stderr, "priv_sock_get_cmd error\n");
     exit(EXIT_FAILURE);
@@ -92,7 +93,7 @@ char priv_sock_get_result(int fd)             //接收结果（子->父）
   int ret = 0;
   char res = '\0';
   ret = readn(fd, &res, sizeof(res));
-  if (ret == sizeof(res))
+  if (ret != sizeof(res))
   {
     fprintf(stderr, "priv_sock_get_result error\n");
     exit(EXIT_FAILURE);
@@ -117,7 +118,7 @@ int priv_sock_get_int(int fd)                          //接收一个整数
   int ret = 0;
   int the_int = 0;
   ret = readn(fd, &the_int, sizeof(the_int));
-  if (ret == sizeof(the_int))
+  if (ret != sizeof(the_int))
   {
     fprintf(stderr, "priv_sock_get_int error\n");
     exit(EXIT_FAILURE);

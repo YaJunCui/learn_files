@@ -99,8 +99,7 @@ int main()
     pid = fork();
     if (pid == -1)
       ERR_EXIT("fork");
-
-    if (pid == 0)
+    else if (pid == 0)
     {
       close(listen_fd);
       sess.ctrl_fd = conn;
