@@ -389,9 +389,9 @@ ssize_t readn(int fd, void *buf, size_t count)
 
 /**
  * writen - 发送固定字节数
- * @fd: 文件描述符
- * @buf: 发送缓冲区
- * @count: 要读取的字节数
+ * @fd:     文件描述符
+ * @buf:    发送缓冲区
+ * @count:  要读取的字节数
  * 成功返回count，失败返回-1
  */
 ssize_t writen(int fd, const void *buf, size_t count)

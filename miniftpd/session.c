@@ -4,16 +4,11 @@
 #include "sysutil.h"
 #include "ftpproto.h"
 #include "privparent.h"
+#include "privsock.h"
 
 void begin_session(session_t *sess)
 {
-  int ret = 0;
-  int sockfds[2];
-  ret = socketpair(PF_UNIX, SOCK_STREAM, 0, sockfds); //创建套接字对，用于父子进程间的通信
-  if (ret < 0)
-  {
-    ERR_EXIT("socketpair");
-  }
+  priv_sock_init(sess);              //父子进程socket初始化
 
   pid_t pid;
   pid = fork();
@@ -22,32 +17,14 @@ void begin_session(session_t *sess)
     ERR_EXIT("fork");
   }
 
-  if (pid == 0) //ftp服务进程
+  if (pid == 0)         //子进程，ftp服务进程
   {
-    close(sockfds[0]); //ftp服务进程使用 sockfds[1] 与 nobody 进程进行通信
-    sess->child_fd = sockfds[1];
+    priv_sock_set_child_context(sess);
     handle_child(sess);
   }
-  else //nobody进程
+  else                  //父进程，nobody进程
   {
-    struct passwd *pw = getpwnam("nobody");
-    if (pw == NULL)
-    {
-      return;
-    }
-
-    if (setegid(pw->pw_gid) < 0) //将当前进程的有效组id设置为父进程的组id
-    {
-      ERR_EXIT("setegid");
-    }
-
-    if (seteuid(pw->pw_uid) < 0) //将当前进程的有效用户id设置为父进程的用户id
-    {
-      ERR_EXIT("seteuid");
-    }
-
-    close(sockfds[1]); //nobody进程使用 sockfds[0] 与ftp服务进程进行通信
-    sess->parent_fd = sockfds[0];
+    priv_sock_set_parent_context(sess);
     handle_parent(sess);
   }
 }
