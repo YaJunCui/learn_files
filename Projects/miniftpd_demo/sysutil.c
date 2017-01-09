@@ -1,4 +1,4 @@
-#include "sysutil.h"
+ï»¿#include "sysutil.h"
 
 int tcp_client(unsigned short port)
 {
@@ -26,10 +26,10 @@ int tcp_client(unsigned short port)
 }
 
 /**
- * tcp_server - Æô¶¯tcp·şÎñÆ÷
- * @host: ·şÎñÆ÷IPµØÖ·»òÕß·şÎñÆ÷Ö÷»úÃû
- * @port: ·şÎñÆ÷¶Ë¿Ú
- * ³É¹¦·µ»Ø¼àÌıÌ×½Ó×Ö
+ * tcp_server - å¯åŠ¨tcpæœåŠ¡å™¨
+ * @host: æœåŠ¡å™¨IPåœ°å€æˆ–è€…æœåŠ¡å™¨ä¸»æœºå
+ * @port: æœåŠ¡å™¨ç«¯å£
+ * æˆåŠŸè¿”å›ç›‘å¬å¥—æ¥å­—
  */
 int tcp_server(const char *host, unsigned short port)
 {
@@ -83,8 +83,8 @@ int getlocalip(char *ip)
 
 
 /**
- * activate_noblock - ÉèÖÃI/OÎª·Ç×èÈûÄ£Ê½
- * @fd: ÎÄ¼şÃè·û·û
+ * activate_noblock - è®¾ç½®I/Oä¸ºéé˜»å¡æ¨¡å¼
+ * @fd: æ–‡ä»¶æç¬¦ç¬¦
  */
 void activate_nonblock(int fd)
 {
@@ -100,8 +100,8 @@ void activate_nonblock(int fd)
 }
 
 /**
- * deactivate_nonblock - ÉèÖÃI/OÎª×èÈûÄ£Ê½
- * @fd: ÎÄ¼şÃè·û·û
+ * deactivate_nonblock - è®¾ç½®I/Oä¸ºé˜»å¡æ¨¡å¼
+ * @fd: æ–‡ä»¶æç¬¦ç¬¦
  */
 void deactivate_nonblock(int fd)
 {
@@ -117,10 +117,10 @@ void deactivate_nonblock(int fd)
 }
 
 /**
- * read_timeout - ¶Á³¬Ê±¼ì²âº¯Êı£¬²»º¬¶Á²Ù×÷
- * @fd: ÎÄ¼şÃèÊö·û
- * @wait_seconds: µÈ´ı³¬Ê±ÃëÊı£¬Èç¹ûÎª0±íÊ¾²»¼ì²â³¬Ê±
- * ³É¹¦£¨Î´³¬Ê±£©·µ»Ø0£¬Ê§°Ü·µ»Ø-1£¬³¬Ê±·µ»Ø-1²¢ÇÒerrno = ETIMEDOUT
+ * read_timeout - è¯»è¶…æ—¶æ£€æµ‹å‡½æ•°ï¼Œä¸å«è¯»æ“ä½œ
+ * @fd: æ–‡ä»¶æè¿°ç¬¦
+ * @wait_seconds: ç­‰å¾…è¶…æ—¶ç§’æ•°ï¼Œå¦‚æœä¸º0è¡¨ç¤ºä¸æ£€æµ‹è¶…æ—¶
+ * æˆåŠŸï¼ˆæœªè¶…æ—¶ï¼‰è¿”å›0ï¼Œå¤±è´¥è¿”å›-1ï¼Œè¶…æ—¶è¿”å›-1å¹¶ä¸”errno = ETIMEDOUT
  */
 int read_timeout(int fd, unsigned int wait_seconds)
 {
@@ -150,10 +150,10 @@ int read_timeout(int fd, unsigned int wait_seconds)
 }
 
 /**
- * write_timeout - ¶Á³¬Ê±¼ì²âº¯Êı£¬²»º¬Ğ´²Ù×÷
- * @fd: ÎÄ¼şÃèÊö·û
- * @wait_seconds: µÈ´ı³¬Ê±ÃëÊı£¬Èç¹ûÎª0±íÊ¾²»¼ì²â³¬Ê±
- * ³É¹¦£¨Î´³¬Ê±£©·µ»Ø0£¬Ê§°Ü·µ»Ø-1£¬³¬Ê±·µ»Ø-1²¢ÇÒerrno = ETIMEDOUT
+ * write_timeout - è¯»è¶…æ—¶æ£€æµ‹å‡½æ•°ï¼Œä¸å«å†™æ“ä½œ
+ * @fd: æ–‡ä»¶æè¿°ç¬¦
+ * @wait_seconds: ç­‰å¾…è¶…æ—¶ç§’æ•°ï¼Œå¦‚æœä¸º0è¡¨ç¤ºä¸æ£€æµ‹è¶…æ—¶
+ * æˆåŠŸï¼ˆæœªè¶…æ—¶ï¼‰è¿”å›0ï¼Œå¤±è´¥è¿”å›-1ï¼Œè¶…æ—¶è¿”å›-1å¹¶ä¸”errno = ETIMEDOUT
  */
 int write_timeout(int fd, unsigned int wait_seconds)
 {
@@ -183,11 +183,11 @@ int write_timeout(int fd, unsigned int wait_seconds)
 }
 
 /**
- * accept_timeout - ´ø³¬Ê±µÄaccept
- * @fd: Ì×½Ó×Ö
- * @addr: Êä³ö²ÎÊı£¬·µ»Ø¶Ô·½µØÖ·
- * @wait_seconds: µÈ´ı³¬Ê±ÃëÊı£¬Èç¹ûÎª0±íÊ¾Õı³£Ä£Ê½
- * ³É¹¦£¨Î´³¬Ê±£©·µ»ØÒÑÁ¬½ÓÌ×½Ó×Ö£¬³¬Ê±·µ»Ø-1²¢ÇÒerrno = ETIMEDOUT
+ * accept_timeout - å¸¦è¶…æ—¶çš„accept
+ * @fd: å¥—æ¥å­—
+ * @addr: è¾“å‡ºå‚æ•°ï¼Œè¿”å›å¯¹æ–¹åœ°å€
+ * @wait_seconds: ç­‰å¾…è¶…æ—¶ç§’æ•°ï¼Œå¦‚æœä¸º0è¡¨ç¤ºæ­£å¸¸æ¨¡å¼
+ * æˆåŠŸï¼ˆæœªè¶…æ—¶ï¼‰è¿”å›å·²è¿æ¥å¥—æ¥å­—ï¼Œè¶…æ—¶è¿”å›-1å¹¶ä¸”errno = ETIMEDOUT
  */
 int accept_timeout(int fd, struct sockaddr_in *addr, unsigned int wait_seconds)
 {
@@ -223,10 +223,10 @@ int accept_timeout(int fd, struct sockaddr_in *addr, unsigned int wait_seconds)
 
 /**
  * connect_timeout - connect
- * @fd: Ì×½Ó×Ö
- * @addr: ÒªÁ¬½ÓµÄ¶Ô·½µØÖ·
- * @wait_seconds: µÈ´ı³¬Ê±ÃëÊı£¬Èç¹ûÎª0±íÊ¾Õı³£Ä£Ê½
- * ³É¹¦£¨Î´³¬Ê±£©·µ»Ø0£¬Ê§°Ü·µ»Ø-1£¬³¬Ê±·µ»Ø-1²¢ÇÒerrno = ETIMEDOUT
+ * @fd: å¥—æ¥å­—
+ * @addr: è¦è¿æ¥çš„å¯¹æ–¹åœ°å€
+ * @wait_seconds: ç­‰å¾…è¶…æ—¶ç§’æ•°ï¼Œå¦‚æœä¸º0è¡¨ç¤ºæ­£å¸¸æ¨¡å¼
+ * æˆåŠŸï¼ˆæœªè¶…æ—¶ï¼‰è¿”å›0ï¼Œå¤±è´¥è¿”å›-1ï¼Œè¶…æ—¶è¿”å›-1å¹¶ä¸”errno = ETIMEDOUT
  */
 int connect_timeout(int fd, struct sockaddr_in *addr, unsigned int wait_seconds)
 {
@@ -255,8 +255,8 @@ int connect_timeout(int fd, struct sockaddr_in *addr, unsigned int wait_seconds)
 			return -1;
 		else if (ret == 1) {
 			//printf("BBBBB\n");
-			/* ret·µ»ØÎª1£¬¿ÉÄÜÓĞÁ½ÖÖÇé¿ö£¬Ò»ÖÖÊÇÁ¬½Ó½¨Á¢³É¹¦£¬Ò»ÖÖÊÇÌ×½Ó×Ö²úÉú´íÎó£¬*/
-			/* ´ËÊ±´íÎóĞÅÏ¢²»»á±£´æÖÁerrno±äÁ¿ÖĞ£¬Òò´Ë£¬ĞèÒªµ÷ÓÃgetsockoptÀ´»ñÈ¡¡£ */
+			/* retè¿”å›ä¸º1ï¼Œå¯èƒ½æœ‰ä¸¤ç§æƒ…å†µï¼Œä¸€ç§æ˜¯è¿æ¥å»ºç«‹æˆåŠŸï¼Œä¸€ç§æ˜¯å¥—æ¥å­—äº§ç”Ÿé”™è¯¯ï¼Œ*/
+			/* æ­¤æ—¶é”™è¯¯ä¿¡æ¯ä¸ä¼šä¿å­˜è‡³errnoå˜é‡ä¸­ï¼Œå› æ­¤ï¼Œéœ€è¦è°ƒç”¨getsockoptæ¥è·å–ã€‚ */
 			int err;
 			socklen_t socklen = sizeof(err);
 			int sockoptret = getsockopt(fd, SOL_SOCKET, SO_ERROR, &err, &socklen);
@@ -280,11 +280,11 @@ int connect_timeout(int fd, struct sockaddr_in *addr, unsigned int wait_seconds)
 }
 
 /**
- * readn - ¶ÁÈ¡¹Ì¶¨×Ö½ÚÊı
- * @fd: ÎÄ¼şÃèÊö·û
- * @buf: ½ÓÊÕ»º³åÇø
- * @count: Òª¶ÁÈ¡µÄ×Ö½ÚÊı
- * ³É¹¦·µ»Øcount£¬Ê§°Ü·µ»Ø-1£¬¶Áµ½EOF·µ»Ø<count
+ * readn - è¯»å–å›ºå®šå­—èŠ‚æ•°
+ * @fd: æ–‡ä»¶æè¿°ç¬¦
+ * @buf: æ¥æ”¶ç¼“å†²åŒº
+ * @count: è¦è¯»å–çš„å­—èŠ‚æ•°
+ * æˆåŠŸè¿”å›countï¼Œå¤±è´¥è¿”å›-1ï¼Œè¯»åˆ°EOFè¿”å›<count
  */
 ssize_t readn(int fd, void *buf, size_t count)
 {
@@ -309,11 +309,11 @@ ssize_t readn(int fd, void *buf, size_t count)
 }
 
 /**
- * writen - ·¢ËÍ¹Ì¶¨×Ö½ÚÊı
- * @fd: ÎÄ¼şÃèÊö·û
- * @buf: ·¢ËÍ»º³åÇø
- * @count: Òª¶ÁÈ¡µÄ×Ö½ÚÊı
- * ³É¹¦·µ»Øcount£¬Ê§°Ü·µ»Ø-1
+ * writen - å‘é€å›ºå®šå­—èŠ‚æ•°
+ * @fd: æ–‡ä»¶æè¿°ç¬¦
+ * @buf: å‘é€ç¼“å†²åŒº
+ * @count: è¦è¯»å–çš„å­—èŠ‚æ•°
+ * æˆåŠŸè¿”å›countï¼Œå¤±è´¥è¿”å›-1
  */
 ssize_t writen(int fd, const void *buf, size_t count)
 {
@@ -338,11 +338,11 @@ ssize_t writen(int fd, const void *buf, size_t count)
 }
 
 /**
- * recv_peek - ½ö½ö²é¿´Ì×½Ó×Ö»º³åÇøÊı¾İ£¬µ«²»ÒÆ³ıÊı¾İ
- * @sockfd: Ì×½Ó×Ö
- * @buf: ½ÓÊÕ»º³åÇø
- * @len: ³¤¶È
- * ³É¹¦·µ»Ø>=0£¬Ê§°Ü·µ»Ø-1
+ * recv_peek - ä»…ä»…æŸ¥çœ‹å¥—æ¥å­—ç¼“å†²åŒºæ•°æ®ï¼Œä½†ä¸ç§»é™¤æ•°æ®
+ * @sockfd: å¥—æ¥å­—
+ * @buf: æ¥æ”¶ç¼“å†²åŒº
+ * @len: é•¿åº¦
+ * æˆåŠŸè¿”å›>=0ï¼Œå¤±è´¥è¿”å›-1
  */
 ssize_t recv_peek(int sockfd, void *buf, size_t len)
 {
@@ -355,11 +355,11 @@ ssize_t recv_peek(int sockfd, void *buf, size_t len)
 }
 
 /**
- * readline - °´ĞĞ¶ÁÈ¡Êı¾İ
- * @sockfd: Ì×½Ó×Ö
- * @buf: ½ÓÊÕ»º³åÇø
- * @maxline: Ã¿ĞĞ×î´ó³¤¶È
- * ³É¹¦·µ»Ø>=0£¬Ê§°Ü·µ»Ø-1
+ * readline - æŒ‰è¡Œè¯»å–æ•°æ®
+ * @sockfd: å¥—æ¥å­—
+ * @buf: æ¥æ”¶ç¼“å†²åŒº
+ * @maxline: æ¯è¡Œæœ€å¤§é•¿åº¦
+ * æˆåŠŸè¿”å›>=0ï¼Œå¤±è´¥è¿”å›-1
  */
 ssize_t readline(int sockfd, void *buf, size_t maxline)
 {
@@ -618,8 +618,8 @@ long get_time_usec(void)
 
 void nano_sleep(double seconds)
 {
-	time_t secs = (time_t)seconds;					// ÕûÊı²¿·Ö
-	double fractional = seconds - (double)secs;		// Ğ¡Êı²¿·Ö
+	time_t secs = (time_t)seconds;					// æ•´æ•°éƒ¨åˆ†
+	double fractional = seconds - (double)secs;		// å°æ•°éƒ¨åˆ†
 
 	struct timespec ts;
 	ts.tv_sec = secs;
@@ -632,7 +632,7 @@ void nano_sleep(double seconds)
 	while (ret == -1 && errno == EINTR);
 }
 
-// ¿ªÆôÌ×½Ó×Öfd½ÓÊÕ´øÍâÊı¾İµÄ¹¦ÄÜ
+// å¼€å¯å¥—æ¥å­—fdæ¥æ”¶å¸¦å¤–æ•°æ®çš„åŠŸèƒ½
 void activate_oobinline(int fd)
 {
 	int oob_inline = 1;
@@ -643,8 +643,8 @@ void activate_oobinline(int fd)
 	}
 }
 
-// µ±ÎÄ¼şÃèÊöfdÉÏÓĞ´øÍâÊı¾İµÄÊ±ºò£¬½«²úÉúSIGURGĞÅºÅ£¬
-// ¸Ãº¯ÊıÉè¶¨µ±Ç°½ø³ÌÄÜ¹»½ÓÊÕfdÎÄ¼şÃèÊö·ûËù²úÉúµÄSIGURGĞÅºÅ
+// å½“æ–‡ä»¶æè¿°fdä¸Šæœ‰å¸¦å¤–æ•°æ®çš„æ—¶å€™ï¼Œå°†äº§ç”ŸSIGURGä¿¡å·ï¼Œ
+// è¯¥å‡½æ•°è®¾å®šå½“å‰è¿›ç¨‹èƒ½å¤Ÿæ¥æ”¶fdæ–‡ä»¶æè¿°ç¬¦æ‰€äº§ç”Ÿçš„SIGURGä¿¡å·
 void activate_sigurg(int fd)
 {
 	int ret;
