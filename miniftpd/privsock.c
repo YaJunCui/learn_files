@@ -1,6 +1,8 @@
 // Edit by cyj 2017-1-6
-#include "common.h"
+
 #include "privsock.h"
+#include "common.h"
+#include "sysutil.h"
 
 void priv_sock_init(session_t *sess)
 {
@@ -101,30 +103,63 @@ char priv_sock_get_result(int fd)             //接收结果（子->父）
 
 void priv_sock_send_int(int fd, int the_int)           //发送一个整数
 {
-
+  int ret = 0;
+  ret = writen(fd, &the_int, sizeof(the_int));
+  if (ret != sizeof(the_int))
+  {
+    fprintf(stderr, "priv_sock_send_int error\n");
+    exit(EXIT_FAILURE);
+  }
 }
 
 int priv_sock_get_int(int fd)                          //接收一个整数
 {
+  int ret = 0;
+  int the_int = 0;
+  ret = readn(fd, &the_int, sizeof(the_int));
+  if (ret == sizeof(the_int))
+  {
+    fprintf(stderr, "priv_sock_get_int error\n");
+    exit(EXIT_FAILURE);
+  }
 
+  return the_int;
 }
 
 void priv_sock_send_buf(int fd, const char *buf, unsigned int len) //发送字符串
 {
-
+  priv_sock_send_int(fd, (int)len);                   //发送长度
+  int ret = writen(fd, buf, len);
+  if (ret != (int)len)
+  {
+    fprintf(stderr, "priv_sock_send_buf error\n");
+    exit(EXIT_FAILURE);
+  }
 }
 
 void priv_sock_recv_buf(int fd, char *buf, unsigned int len)       //接收字符串
 {
+  unsigned int recv_len = (unsigned int)priv_sock_get_int(fd);
+  if(recv_len > len)
+  {
+    fprintf(stderr, "priv_sock_recv_buf error\n");
+    exit(EXIT_FAILURE);
+  }
 
+  int ret = readn(fd, buf, recv_len);
+  if(ret != recv_len)
+  {
+    fprintf(stderr, "priv_sock_recv_buf error\n");
+    exit(EXIT_FAILURE);
+  }
 }
 
 void priv_sock_send_fd(int sock_fd, int fd)            //发送文件描述符
 {
-
+  send_fd(sock_fd, fd);
 }
 
 int priv_sock_recv_fd(int sock_fd)                     //接收文件描述符
 {
-  
+  return recv_fd(sock_fd);
 }
