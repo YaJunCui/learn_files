@@ -260,31 +260,37 @@ int list_common(session_t *sess, int detail)
 	struct dirent *dt;
 	struct stat sbuf;
 	while ((dt = readdir(dir)) != NULL) {
-		if (lstat(dt->d_name, &sbuf) < 0) {
-			continue;
-		}
-        if (dt->d_name[0] == '.') {
-			continue;
-        }
+	  if (lstat(dt->d_name, &sbuf) < 0)
+	  {
+	    continue;
+	  }
+	  if (dt->d_name[0] == '.')
+	  {
+	    continue;
+	  }
 
-		char buf[1024] = {0};
-		if (detail) {
-			const char *perms = statbuf_get_perms(&sbuf);
+	  char buf[1024] = {0};
+	  if (detail)
+	  {
+	    const char *perms = statbuf_get_perms(&sbuf);
 
-			int off = 0;
-			off += sprintf(buf, "%s ", perms);
-			off += sprintf(buf + off, " %3d %-8d %-8d ", sbuf.st_nlink, sbuf.st_uid, sbuf.st_gid);
-			off += sprintf(buf + off, "%8lu ", (unsigned long)sbuf.st_size);
+	    int off = 0;
+	    off += sprintf(buf, "%s ", perms);
+	    off += sprintf(buf + off, " %3d %-8d %-8d ", sbuf.st_nlink, sbuf.st_uid, sbuf.st_gid);
+	    off += sprintf(buf + off, "%8lu ", (unsigned long)sbuf.st_size);
 
-			const char *datebuf = statbuf_get_date(&sbuf);
-			off += sprintf(buf + off, "%s ", datebuf);
-			if (S_ISLNK(sbuf.st_mode)) {
-				char tmp[1024] = {0};
-				readlink(dt->d_name, tmp, sizeof(tmp));
-				off += sprintf(buf + off, "%s -> %s\r\n", dt->d_name, tmp);
-			} else {
-				off += sprintf(buf + off, "%s\r\n", dt->d_name);
-			}
+	    const char *datebuf = statbuf_get_date(&sbuf);
+	    off += sprintf(buf + off, "%s ", datebuf);
+	    if (S_ISLNK(sbuf.st_mode))
+	    {
+	      char tmp[1024] = {0};
+	      readlink(dt->d_name, tmp, sizeof(tmp));
+	      off += sprintf(buf + off, "%s -> %s\r\n", dt->d_name, tmp);
+	    }
+	    else
+	    {
+	      off += sprintf(buf + off, "%s\r\n", dt->d_name);
+	    }
 		}
 		else {
 			sprintf(buf, "%s\r\n", dt->d_name);

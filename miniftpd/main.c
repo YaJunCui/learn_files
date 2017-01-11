@@ -79,7 +79,7 @@ int main()
       0, -1, "", "", "",                  //控制连接
       NULL, -1, -1,                       //数据连接
       -1, -1,                             //父子进程通道
-      0                                   //是否为 ASCII 模式
+      0 ,0, NULL                          //是否为 ASCII 模式
   };
 
   signal(SIGCHLD, SIG_IGN);

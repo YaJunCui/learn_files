@@ -26,4 +26,12 @@ ssize_t readline(int sockfd, void* buf, size_t maxline);
 void send_fd(int sock_fd, int fd);                 //发送网络套接字
 int recv_fd(const int sock_fd);                    //接收网络套接字
 
+const char *statbuf_get_perms(struct stat *sbuf);  //获取文件的权限状态
+const char *statbuf_get_date(struct stat *sbuf);   //获取文件的时间
+
+int lock_file_read(int fd);                        //加读文件锁
+int lock_file_write(int fd);                       //加写文件锁
+
+int unlock_file(int fd);                           //解除文件锁，包括读/写锁
+
 #endif  //__SYS_UTIL_H__

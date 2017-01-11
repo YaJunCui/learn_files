@@ -38,7 +38,7 @@ void minimize_privilege(void)                          //使进程获得最小�
   memset(&cap_header, 0, sizeof(cap_header));
   memset(&cap_data, 0, sizeof(cap_data));
 
-  cap_header.version = _LINUX_CAPABILITY_VERSION_2;
+  cap_header.version = _LINUX_CAPABILITY_VERSION_1;
   cap_header.pid = 0;
 
   __u32 cap_mask = 0;

@@ -554,3 +554,161 @@ int recv_fd(const int sock_fd)
 
   return recv_fd;
 }
+
+const char *statbuf_get_perms(struct stat *sbuf)  //获取文件的权限状态
+{
+  static char perms[] = "----------"; //权限位
+  perms[0] = '?';
+
+  mode_t mode = sbuf->st_mode;
+  switch (mode & S_IFMT)
+  {
+  case S_IFREG: //普通文件
+    perms[0] = '-';
+    break;
+
+  case S_IFDIR: //文件夹
+    perms[0] = 'd';
+    break;
+
+  case S_IFLNK: //符号连接文件
+    perms[0] = 'l';
+    break;
+
+  case S_IFIFO: //管道文件
+    perms[0] = 'p';
+    break;
+
+  case S_IFSOCK: //socket
+    perms[0] = 's';
+    break;
+
+  case S_IFCHR: //字符设备文件
+    perms[0] = 'c';
+    break;
+
+  case S_IFBLK: //块设备文件
+    perms[0] = 'b';
+    break;
+
+  default:
+    break;
+  }
+
+  if (mode & S_IRUSR) //当前用户的读、写、执行权限
+  {
+    perms[1] = 'r';
+  }
+  if (mode & S_IWUSR)
+  {
+    perms[2] = 'w';
+  }
+  if (mode & S_IXUSR)
+  {
+    perms[3] = 'x';
+  }
+
+  if (mode & S_IRGRP) //组用户的读、写、执行权限
+  {
+    perms[4] = 'r';
+  }
+  if (mode & S_IWGRP)
+  {
+    perms[5] = 'w';
+  }
+  if (mode & S_IXGRP)
+  {
+    perms[6] = 'x';
+  }
+
+  if (mode & S_IROTH) //其他用户的读、写、执行权限
+  {
+    perms[7] = 'r';
+  }
+  if (mode & S_IWOTH)
+  {
+    perms[8] = 'w';
+  }
+  if (mode & S_IXOTH)
+  {
+    perms[9] = 'x';
+  }
+
+  if (mode & S_ISUID) //特殊权限的处理
+  {
+    perms[3] = (perms[3] == 'x') ? 's' : 'S';
+  }
+  if (mode & S_ISGID)
+  {
+    perms[6] = (perms[6] == 'x') ? 's' : 'S';
+  }
+  if (mode & S_ISVTX)
+  {
+    perms[9] = (perms[9] == 'x') ? 't' : 'T';
+  }
+
+  return perms;
+}
+
+const char *statbuf_get_date(struct stat *sbuf)   //获取文件的时间
+{
+  static char date_buf[64] = {0};        //文件的日期
+  const char *p_date_format = "%b %e %H:%M";
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  time_t local_time = tv.tv_sec;
+
+  if (sbuf->st_mtime > local_time || 
+      (local_time - sbuf->st_mtime) > 182 * 24 * 60 * 60)
+  {
+    p_date_format = "%b %e  %Y";
+  }
+
+  struct tm *p_tm = localtime(&sbuf->st_mtime);
+  strftime(date_buf, sizeof(date_buf), p_date_format, p_tm);
+
+  return date_buf;
+}
+
+static int lock_internal(int fd, int lock_type)
+{
+  int ret = 0;
+  struct flock the_lock;
+  memset(&the_lock, 0, sizeof(the_lock));
+  the_lock.l_type = lock_type;
+  the_lock.l_whence = SEEK_SET;
+  the_lock.l_start = 0;
+  the_lock.l_len = 0;
+
+  do
+  {
+    ret = fcntl(fd, F_SETLKW, &the_lock);
+  } while (ret < 0 && errno == EINTR);
+
+  return ret;
+}
+
+int lock_file_read(int fd)                         //加读文件锁
+{
+  return lock_internal(fd, F_RDLCK);
+}
+
+int lock_file_write(int fd)                        //加写文件锁
+{
+  return lock_internal(fd, F_WRLCK);
+}
+
+int unlock_file(int fd)                            //解除文件锁，包括读/写锁
+{
+  int ret = 0;
+  struct flock the_lock;
+  memset(&the_lock, 0, sizeof(the_lock));
+  the_lock.l_type = F_UNLCK;
+  the_lock.l_whence = SEEK_SET;
+  the_lock.l_start = 0;
+  the_lock.l_len = 0;
+
+  ret = fcntl(fd, F_SETLK, &the_lock);
+
+  return ret;
+}
