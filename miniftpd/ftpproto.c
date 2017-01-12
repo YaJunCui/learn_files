@@ -849,6 +849,11 @@ void do_retr(session_t *sess)
       flag = 2;
     }
     limit_rate(sess, ret, 0);
+    if (sess->abor_received)
+    {
+      flag = 1;
+      break;
+    }
     bytes_to_send -= ret;                    //剩余待发送的字节数
   }
 
@@ -862,7 +867,7 @@ void do_retr(session_t *sess)
   sess->data_fd = -1;
   close(fd);
   
-  if (flag == 0)
+  if (flag == 0 && !sess->abor_received)
   {
     // 226
     ftp_reply(sess, FTP_TRANSFEROK, "Transfer complete.");
@@ -877,6 +882,8 @@ void do_retr(session_t *sess)
     // 451
     ftp_reply(sess, FTP_BADSENDNET, "Failure writting to network stream.");
   }
+
+  check_abor(sess);
 
   //重新开启控制连接通道
   start_cmdio_alarm();
@@ -930,6 +937,7 @@ void do_rest(session_t *sess)
 
 void do_abor(session_t *sess)
 {
+  ftp_reply(sess, FTP_ABOR_NOCONN, "No transfer to ABOR.");
 }
 
 void do_pwd(session_t *sess)
