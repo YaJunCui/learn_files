@@ -12,8 +12,15 @@
 static void ftp_reply(session_t *sess, int status, const char *text);
 static void ftp_lreply(session_t *sess, int status, const char *text);
 
+void handle_alarm_timeout(int sig);
+void start_cmdio_alarm();
+void handle_sigalrm(int sig);
+void start_data_alarm();
+
 int list_common(session_t *sess, int detail);
 void upload_common(session_t *sess, int is_append);
+
+static void limit_rate(session_t *sess, int bytes_transfered, int is_upload);
 
 static int get_transfer_fd(session_t *sess);
 int port_active(session_t *sess);
@@ -96,6 +103,55 @@ static ftpcmd_t ctrl_cmds[] = {
     {"STOU", NULL},
     {"ALLO", NULL}};
 
+extern session_t *g_sess;
+
+void handle_alarm_timeout(int sig)
+{
+  shutdown(g_sess->ctrl_fd, SHUT_RD);
+  ftp_reply(g_sess, FTP_IDLE_TIMEOUT, "Timeout.");
+  shutdown(g_sess->ctrl_fd, SHUT_WR);
+  exit(EXIT_FAILURE);
+}
+
+void start_cmdio_alarm()
+{
+  if(tunable_idle_session_timeout > 0)
+  {
+    // 安装信号
+    signal(SIGALRM, handle_alarm_timeout);
+    // 启动闹钟
+    alarm(tunable_idle_session_timeout);
+  }
+}
+
+void handle_sigalrm(int sig)
+{
+  if(!g_sess->data_process)
+  {
+    ftp_reply(g_sess, FTP_DATA_TIMEOUT, "Data timeout. Reconnect. Sorry");
+    exit(EXIT_FAILURE);
+  }
+  
+  g_sess->data_process = 0;           //当前处于数据传输的状态收到了超时信号
+  start_data_alarm(); 
+}
+
+void start_data_alarm()
+{
+  if (tunable_data_connection_timeout > 0)
+  {
+    // 安装信号
+    signal(SIGALRM, handle_sigalrm);
+    // 启动闹钟
+    alarm(tunable_data_connection_timeout);
+  }
+  else if(tunable_idle_session_timeout > 0)
+  {
+    // 关闭先前安装的闹钟
+    alarm(0);
+  }
+}
+
 void handle_child(session_t *sess)
 {
   ftp_reply(sess, FTP_GREET, "(miniftpd 0.1)");
@@ -106,6 +162,8 @@ void handle_child(session_t *sess)
     memset(sess->cmdline, 0, sizeof(sess->cmdline));
     memset(sess->cmd, 0, sizeof(sess->cmd));
     memset(sess->arg, 0, sizeof(sess->arg));
+
+    start_cmdio_alarm();
 
     ret = readline(sess->ctrl_fd, sess->cmdline, MAX_COMMAND_LINE);
     if (ret == -1)
@@ -244,21 +302,27 @@ int get_transfer_fd(session_t *sess)
   {
     free(sess->port_addr);
     sess->port_addr = NULL;
-  }  
+  }
 
-  if(pasv_active(sess))
+  if (pasv_active(sess))
   {
     int fd = accept_timeout(sess->pasv_listen_fd, NULL, tunable_accept_timeout);
-    if(fd == -1)
+    if (fd == -1)
     {
       return 0;
     }
-    close(sess->pasv_listen_fd); 
+    close(sess->pasv_listen_fd);
 
     sess->data_fd = fd;
   }
 
-  return ret;
+    if (ret)
+    {
+      //重新安装 SIGALRM 信号，并启动闹钟
+      start_data_alarm();
+    }
+
+    return ret;
 }
 
 void do_user(session_t *sess)
@@ -329,6 +393,56 @@ int list_common(session_t *sess, int detail)
   closedir(dir);
 
   return 0;
+}
+
+void limit_rate(session_t *sess, int bytes_transfered, int is_upload)
+{
+  sess->data_process = 1;
+  //睡眠时间 = (当前传输速度 / 最大传输速度 - 1) * 当前传输时间
+  long cur_sec = get_time_sec();
+  long cur_usec = get_time_usec();
+
+  double elapsed;
+  elapsed = cur_sec - sess->bw_transfer_start_sec;
+  elapsed += (double)(cur_usec - sess->bw_transfer_start_usec)/(double)1000000;
+
+  if(elapsed <= 0.0 )
+  {
+    elapsed = 0.01;
+  }
+
+  //计算当前传输时间
+  unsigned int bw_rate = (unsigned int)((double)bytes_transfered / elapsed);
+
+  double rate_ratio = 0.0;
+  if(is_upload)
+  {
+    if(bw_rate <= sess->bw_upload_rate_max)
+    {
+      sess->bw_transfer_start_sec = cur_sec;
+      sess->bw_transfer_start_usec = cur_usec;
+      return;                             //不需要限速
+    }
+    rate_ratio = bw_rate / sess->bw_upload_rate_max;
+  }
+  else
+  {
+    if(bw_rate <= sess->bw_download_rate_max)
+    {
+      sess->bw_transfer_start_sec = cur_sec;
+      sess->bw_transfer_start_usec = cur_usec;
+      return;                             //不需要限速
+    }
+    rate_ratio = bw_rate / sess->bw_download_rate_max;
+  }
+
+  double pause_time;
+  pause_time = (rate_ratio - 1) * elapsed;
+
+  nano_sleep(pause_time);
+
+  sess->bw_transfer_start_sec = get_time_sec();
+  sess->bw_transfer_start_usec = get_time_usec();
 }
 
 void upload_common(session_t *sess, int is_append)
@@ -414,6 +528,12 @@ void upload_common(session_t *sess, int is_append)
   // 上传文件
   int flag = 0;
   char buf[1024] = {0};
+
+  start_data_alarm();
+
+  sess->bw_transfer_start_sec = get_time_sec();
+  sess->bw_transfer_start_usec = get_time_usec();  
+
   while (1)
   {
     ret = read(sess->data_fd, buf, sizeof(buf));
@@ -434,6 +554,8 @@ void upload_common(session_t *sess, int is_append)
       flag = 0;
       break;
     }
+
+    limit_rate(sess, ret, 1);
 
     if(writen(fd, buf, ret) != ret)
     {
@@ -462,6 +584,8 @@ void upload_common(session_t *sess, int is_append)
     // 451
     ftp_reply(sess, FTP_BADSENDNET, "Failure reading to network stream.");
   }
+
+  start_cmdio_alarm();
 }
 
 void do_pass(session_t *sess)
@@ -660,6 +784,9 @@ void do_retr(session_t *sess)
     bytes_to_send -= offset;
   }
 
+  sess->bw_transfer_start_sec = get_time_sec();
+  sess->bw_transfer_start_usec = get_time_usec();
+
   while (bytes_to_send)
   {
     int num_this_time = bytes_to_send > 4096 ? 4096 : bytes_to_send;
@@ -668,7 +795,7 @@ void do_retr(session_t *sess)
     {
       flag = 2;
     }
-
+    limit_rate(sess, ret, 0);
     bytes_to_send -= ret;                    //剩余待发送的字节数
   }
 
@@ -697,6 +824,9 @@ void do_retr(session_t *sess)
     // 451
     ftp_reply(sess, FTP_BADSENDNET, "Failure writting to network stream.");
   }
+
+  //重新开启控制连接通道
+  start_cmdio_alarm();
 }
 
 void do_stor(session_t *sess)

@@ -8,6 +8,8 @@
 #include "parseconf.h"
 #include "ftpproto.h"
 
+session_t *g_sess;
+
 int main()
 {
   //list_common();
@@ -77,10 +79,15 @@ int main()
   session_t sess =
   {
       0, -1, "", "", "",                  //控制连接
-      NULL, -1, -1,                       //数据连接
+      NULL, -1, -1, 0,                    //数据连接
+      0, 0, 0, 0,                         //限速
       -1, -1,                             //父子进程通道
       0 ,0, NULL                          //是否为 ASCII 模式
   };
+  g_sess = &sess;
+
+  sess.bw_upload_rate_max = tunable_upload_max_rate;
+  sess.bw_download_rate_max = tunable_download_max_rate;
 
   signal(SIGCHLD, SIG_IGN);
   

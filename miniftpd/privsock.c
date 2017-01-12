@@ -67,7 +67,11 @@ char priv_sock_get_cmd(int fd)                //接收命令（父->子）
   int ret = 0;
   char res;
   ret = readn(fd, &res, sizeof(res));
-
+  if(ret == 0)
+  {
+    printf("ftp process exit.\n");
+    exit(EXIT_SUCCESS);
+  }
   if(ret != sizeof(res))
   {
     fprintf(stderr, "priv_sock_get_cmd error\n");

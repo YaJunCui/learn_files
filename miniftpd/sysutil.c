@@ -712,3 +712,36 @@ int unlock_file(int fd)                            //解除文件锁，包括读
 
   return ret;
 }
+
+static struct timeval s_cur_time;
+
+long get_time_sec()                                //获取当前时间的秒数
+{
+  if (gettimeofday(&s_cur_time, NULL) < 0)
+  {
+    ERR_EXIT("gettimeofday");
+  }
+  return s_cur_time.tv_sec;
+}
+
+long get_time_usec()                               //获取当前时间的毫秒数
+{
+  return s_cur_time.tv_usec;
+}
+
+void nano_sleep(double seconds)                    //纳秒级休眠，单位：秒
+{
+  time_t secs = (time_t)seconds;                    //整数部分
+  double fractional = seconds - (double)secs;       //小数部分
+
+  struct timespec ts;
+  ts.tv_sec = secs;
+  ts.tv_nsec = (long)(fractional * (1000000000));
+
+  int ret = 0;
+  do
+  {
+    ret = nanosleep(&ts, &ts);
+  }
+  while (ret == -1 && errno == EINTR);  
+}

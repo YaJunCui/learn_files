@@ -34,4 +34,9 @@ int lock_file_write(int fd);                       //加写文件锁
 
 int unlock_file(int fd);                           //解除文件锁，包括读/写锁
 
+long get_time_sec();                               //获取当前时间的秒数
+long get_time_usec();                              //获取当前时间的毫秒数
+
+void nano_sleep(double nano_seconds);              //休眠，单位：秒
+
 #endif  //__SYS_UTIL_H__
