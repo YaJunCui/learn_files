@@ -569,7 +569,6 @@ int get_transfer_fd(session_t *sess)
 		if (get_pasv_fd(sess) == 0) {
 			ret = 0;
 		}
-
 	}
 
 	
