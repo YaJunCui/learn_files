@@ -283,25 +283,20 @@ int get_port_fd(session_t *sess)
 
 int get_transfer_fd(session_t *sess)
 {
-  int ret = 1;
   // 检测是否收到 PORT 和 PASV 命令
   if(!port_active(sess) && !pasv_active(sess))
   {
+    ftp_reply(sess, FTP_BADSENDCONN, "Use PORT or PASV first.");
     return 0;
   }
 
-  if(port_active(sess))         //如果是主动模式
+  int ret = 1;
+  if (port_active(sess)) //如果是主动模式
   {
-    if(get_port_fd(sess) == 0)
+    if (get_port_fd(sess) == 0)
     {
       ret = 0;
     }
-  }
-
-  if(sess->port_addr != NULL)
-  {
-    free(sess->port_addr);
-    sess->port_addr = NULL;
   }
 
   if (pasv_active(sess))
@@ -316,13 +311,19 @@ int get_transfer_fd(session_t *sess)
     sess->data_fd = fd;
   }
 
-    if (ret)
-    {
-      //重新安装 SIGALRM 信号，并启动闹钟
-      start_data_alarm();
-    }
+  if (sess->port_addr != NULL)
+  {
+    free(sess->port_addr);
+    sess->port_addr = NULL;
+  }
 
-    return ret;
+  if (ret)
+  {
+    //重新安装 SIGALRM 信号，并启动闹钟
+    start_data_alarm();
+  }
+
+  return ret;
 }
 
 void do_user(session_t *sess)
