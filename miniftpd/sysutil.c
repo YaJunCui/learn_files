@@ -745,3 +745,26 @@ void nano_sleep(double seconds)                    //纳秒级休眠，单位：
   }
   while (ret == -1 && errno == EINTR);  
 }
+
+void activate_oobinline(int fd)                     //激活紧急模式
+{
+  int oob_inline = 1;
+  int ret = 0;
+
+  ret = setsockopt(fd, SOL_SOCKET, SO_OOBINLINE, 
+                   &oob_inline, sizeof(oob_inline));
+  if(ret == -1)
+  {
+    ERR_EXIT("setsockopt");
+  }
+}
+
+void activate_sigurg(int fd)
+{
+  int ret = 0;
+  ret = fcntl(fd, F_SETOWN, getpid());
+  if(ret == -1)
+  {
+    ERR_EXIT("fcntl");
+  }
+}

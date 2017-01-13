@@ -39,4 +39,7 @@ long get_time_usec();                              //获取当前时间的毫秒
 
 void nano_sleep(double nano_seconds);              //休眠，单位：秒
 
+void activate_oobinline(int fd);                   //激活套接字fd接收带外数据的功能
+void activate_sigurg(int fd);//当文件描述符fd上有带外数据时，将产生 SIGURG 信号
+                             //该函数设定当前进程能够接受fd文件描述符所产生的SIGURG信号
 #endif  //__SYS_UTIL_H__

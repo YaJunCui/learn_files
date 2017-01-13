@@ -8,6 +8,8 @@
 
 void begin_session(session_t *sess)
 {
+  activate_oobinline(sess->ctrl_fd);
+
   priv_sock_init(sess);              //父子进程socket初始化
 
   pid_t pid;
