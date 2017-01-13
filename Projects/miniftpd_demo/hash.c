@@ -1,4 +1,4 @@
-#include "hash.h"
+ï»¿#include "hash.h"
 #include "common.h"
 #include <assert.h>
 
@@ -64,7 +64,7 @@ void hash_add_entry(hash_t *hash, void *key, unsigned int key_size,
 	if (*bucket == NULL) {
 		*bucket = node;
 	} else {
-		// ½«ÐÂ½áµã²åÈëµ½Á´±íÍ·²¿
+		// å°†æ–°ç»“ç‚¹æ’å…¥åˆ°é“¾è¡¨å¤´éƒ¨
 		node->next = *bucket;
 		(*bucket)->prev = node;
 		*bucket = node;
