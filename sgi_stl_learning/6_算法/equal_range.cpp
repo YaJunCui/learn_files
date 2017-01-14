@@ -100,7 +100,7 @@ equal_range(ForwardIterator first, ForwardIterator last, const T& value)
 
 }
 
-int main()
+int main_equal()
 {
   vector<int> ivec{ 1, 2, 3, 4, 4, 4, 4, 5, 6, 7 };
 
