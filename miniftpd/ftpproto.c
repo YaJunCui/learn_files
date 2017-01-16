@@ -9,7 +9,6 @@
 #include "tunable.h"
 #include "privsock.h"
 
-static void ftp_reply(session_t *sess, int status, const char *text);
 static void ftp_lreply(session_t *sess, int status, const char *text);
 
 void handle_alarm_timeout(int sig);

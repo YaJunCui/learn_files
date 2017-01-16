@@ -1,5 +1,6 @@
 // Edit by cyj 2017-1-13
 #include "hash.h"
+#include "common.h"
 #include <assert.h>
 
 typedef struct hash_node

@@ -7,8 +7,13 @@
 #include "tunable.h"
 #include "parseconf.h"
 #include "ftpproto.h"
+#include "ftpcodes.h"
 
 session_t *g_sess;
+static unsigned int s_children;
+
+void check_limits(session_t *sess);
+void handle_sigchld(int sig);
 
 int main()
 {
@@ -82,14 +87,15 @@ int main()
       NULL, -1, -1, 0,                    //数据连接
       0, 0, 0, 0,                         //限速
       -1, -1,                             //父子进程通道
-      0 ,0, NULL, 0                       //FTP 状态
+      0 ,0, NULL, 0,                      //FTP 状态
+      0                                   //连接数的限制
   };
   g_sess = &sess;
 
   sess.bw_upload_rate_max = tunable_upload_max_rate;
   sess.bw_download_rate_max = tunable_download_max_rate;
 
-  signal(SIGCHLD, SIG_IGN);
+  signal(SIGCHLD, handle_sigchld);
   
   int listen_fd = tcp_server(NULL, tunable_listen_port);
   int conn;
@@ -103,13 +109,21 @@ int main()
       ERR_EXIT("accept_timeout");
     }
 
+    ++s_children;
+    sess.num_clients = s_children;
+
     pid = fork();
     if (pid == -1)
+    {
+      --s_children;
       ERR_EXIT("fork");
+    }
     else if (pid == 0)
     {
       close(listen_fd);
       sess.ctrl_fd = conn;
+      check_limits(&sess);
+      signal(SIGCHLD, SIG_IGN);          
       begin_session(&sess);
     }
     else
@@ -119,4 +133,22 @@ int main()
   }
 
   return 0;
+}
+
+void check_limits(session_t *sess)
+{
+  if(tunable_max_clients > 0 && sess->num_clients > tunable_max_clients)
+  {
+    ftp_reply(sess, FTP_TOO_MANY_USERS,
+              "There are too many connected users. Please try later.");
+    exit(EXIT_FAILURE);
+  }
+}
+
+void handle_sigchld(int sig)
+{
+  pid_t pid;
+  while((pid = waitpid(-1, NULL, WNOHANG)) < 0);    //必须检测到有子进程结束
+
+  --s_children;
 }
