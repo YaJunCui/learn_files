@@ -8,12 +8,18 @@
 #include "parseconf.h"
 #include "ftpproto.h"
 #include "ftpcodes.h"
+#include "hash.h"
 
 session_t *g_sess;
 static unsigned int s_children;
 
+static hash_t *s_ip_count_hash;
+
 void check_limits(session_t *sess);
 void handle_sigchld(int sig);
+unsigned int *hash_func(unsigned int buckets, void* key);
+
+unsigned int handle_ip_count(void *ip);
 
 int main()
 {
@@ -87,27 +93,33 @@ int main()
       NULL, -1, -1, 0,                    //数据连接
       0, 0, 0, 0,                         //限速
       -1, -1,                             //父子进程通道
-      0 ,0, NULL, 0,                      //FTP 状态
-      0                                   //连接数的限制
+      0, 0, NULL, 0,                      //FTP 状态
+      0, 0                                //连接数的限制
   };
   g_sess = &sess;
 
   sess.bw_upload_rate_max = tunable_upload_max_rate;
   sess.bw_download_rate_max = tunable_download_max_rate;
 
+  s_ip_count_hash = hash_alloc(256, hash_func);
+
   signal(SIGCHLD, handle_sigchld);
   
   int listen_fd = tcp_server(NULL, tunable_listen_port);
   int conn;
   pid_t pid;
+  struct sockaddr_in addr;        //用于获取并保存客户端的地址
 
   while (1)
   {
-    conn = accept_timeout(listen_fd, NULL, 0);
+    conn = accept_timeout(listen_fd, &addr, 0);
     if (conn == -1)
     {
       ERR_EXIT("accept_timeout");
     }
+
+    unsigned int ip = addr.sin_addr.s_addr;
+    handle_ip_count(&ip);
 
     ++s_children;
     sess.num_clients = s_children;
@@ -151,4 +163,31 @@ void handle_sigchld(int sig)
   while((pid = waitpid(-1, NULL, WNOHANG)) < 0);    //必须检测到有子进程结束
 
   --s_children;
+}
+
+unsigned int *hash_func(unsigned int buckets, void* key)
+{
+  unsigned int *number = (unsigned int*)key;
+  return (*number) % buckets;
+}
+
+unsigned int handle_ip_count(void *ip)
+{
+  unsigned int count;
+  unsigned int *p_count = (unsigned int *)hash_lookup_entry(s_ip_count_hash, ip,
+                                            sizeof(unsigned int));
+  if(p_count == NULL)
+  {
+    count = 1;
+    hash_add_entry(s_ip_count_hash, ip, sizeof(unsigned int),
+                   &count, sizeof(unsigned int));
+  }
+  else
+  {
+    count = *p_count;
+    ++count;
+    *p_count = count;
+  }
+
+  return count;
 }
