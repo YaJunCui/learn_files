@@ -14,16 +14,18 @@ session_t *g_sess;
 static unsigned int s_children;
 
 static hash_t *s_ip_count_hash;
+static hash_t *s_pid_ip_hash;
 
 void check_limits(session_t *sess);
 void handle_sigchld(int sig);
-unsigned int *hash_func(unsigned int buckets, void* key);
+unsigned int hash_func(unsigned int buckets, void* key);
 
 unsigned int handle_ip_count(void *ip);
+void drop_ip_count(void *ip);
 
 int main()
 {
-  //list_common();
+  // list_common();
   // char *str1 = "    ab";
   // char *str2 = "     ";
 
@@ -102,6 +104,7 @@ int main()
   sess.bw_download_rate_max = tunable_download_max_rate;
 
   s_ip_count_hash = hash_alloc(256, hash_func);
+  s_pid_ip_hash = hash_alloc(256, hash_func);
 
   signal(SIGCHLD, handle_sigchld);
   
@@ -119,10 +122,10 @@ int main()
     }
 
     unsigned int ip = addr.sin_addr.s_addr;
-    handle_ip_count(&ip);
 
     ++s_children;
-    sess.num_clients = s_children;
+    sess.num_clients = s_children;    
+    sess.num_this_ip = handle_ip_count(&ip);             //当前 IP 的连接数
 
     pid = fork();
     if (pid == -1)
@@ -140,6 +143,8 @@ int main()
     }
     else
     {
+      hash_add_entry(s_pid_ip_hash, &pid, sizeof(unsigned int), &ip,
+                     sizeof(unsigned int));
       close(conn);
     }
   }
@@ -149,10 +154,17 @@ int main()
 
 void check_limits(session_t *sess)
 {
-  if(tunable_max_clients > 0 && sess->num_clients > tunable_max_clients)
+  if (tunable_max_clients > 0 && sess->num_clients > tunable_max_clients)
   {
     ftp_reply(sess, FTP_TOO_MANY_USERS,
               "There are too many connected users. Please try later.");
+    exit(EXIT_FAILURE);
+  }
+
+  if (tunable_max_per_ip > 0 && sess->num_this_ip > tunable_max_per_ip)
+  {
+    ftp_reply(sess, FTP_IP_LIMIT,
+              "There are too many connections from your internet address.");
     exit(EXIT_FAILURE);
   }
 }
@@ -160,12 +172,21 @@ void check_limits(session_t *sess)
 void handle_sigchld(int sig)
 {
   pid_t pid;
-  while((pid = waitpid(-1, NULL, WNOHANG)) < 0);    //必须检测到有子进程结束
-
-  --s_children;
+  while((pid = waitpid(-1, NULL, WNOHANG)) > 0)     //检测所有结束的子进程
+  {
+    --s_children;
+    unsigned int *ip = hash_lookup_entry(s_pid_ip_hash, &pid, 
+                                         sizeof(unsigned int));
+    if(ip == NULL)
+    {
+      continue;
+    }
+    drop_ip_count(&ip);
+    hash_free_entry(s_pid_ip_hash, &pid, sizeof(unsigned int));
+  }
 }
 
-unsigned int *hash_func(unsigned int buckets, void* key)
+unsigned int hash_func(unsigned int buckets, void* key)
 {
   unsigned int *number = (unsigned int*)key;
   return (*number) % buckets;
@@ -190,4 +211,28 @@ unsigned int handle_ip_count(void *ip)
   }
 
   return count;
+}
+
+void drop_ip_count(void *ip)
+{
+  unsigned int count;
+  unsigned int *p_count = (unsigned int *)hash_lookup_entry(s_ip_count_hash, 
+                                          &ip, sizeof(unsigned int));
+  if (p_count == NULL)
+  {
+    return;
+  }
+
+  count = *p_count;
+  if(count <= 0)                     //检测 
+  {
+    return;
+  }
+  --count;
+  *p_count = count;
+
+  if(count == 0)
+  {
+    hash_free_entry(s_ip_count_hash, &ip, sizeof(unsigned int));
+  }
 }
