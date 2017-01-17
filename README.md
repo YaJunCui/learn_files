@@ -12,7 +12,7 @@
 
 ---
 
-## [sgi_stl_learning](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning)：sgi stl 学习目录
+## [Sgi_stl_learning](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning)：sgi stl 学习目录
 
 ### 1. [2_空间配置器allocator](https://github.com/YaJunCui/learn_files/tree/master/sgi_stl_learning/2_空间配置器allocator)
 
