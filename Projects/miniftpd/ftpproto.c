@@ -28,6 +28,9 @@ static int get_transfer_fd(session_t *sess);
 int port_active(session_t *sess);
 int pasv_active(session_t *sess);
 
+static void do_site_chmod(session_t *sess, char *chmod_arg);
+static void do_site_umask(session_t *sess, char *umask_arg);
+
 static void do_user(session_t *sess);
 static void do_pass(session_t *sess);
 static void do_cwd(session_t *sess);
@@ -1027,6 +1030,28 @@ void do_rnto(session_t *sess)
 
 void do_site(session_t *sess)
 {
+  char cmd[100] = {0};
+  char arg[100] = {0};
+
+  str_split(sess->arg, cmd, arg, ' ');
+  str_upper(cmd);                        //转化为大写
+  if(strcmp(cmd, "CHMOD") == 0)
+  {
+    do_site_chmod(sess, arg);
+  }
+  else if(strcmp(cmd, "UMASK") == 0)
+  {
+    do_site_umask(sess, arg);
+    ftp_reply(sess, FTP_UMASKOK, " Your current UMASK is ");
+  }
+  else if(strcmp(cmd, "HELP") == 0)
+  {
+    ftp_reply(sess, FTP_SITEHELP, " CHMOD UMASK HELP");
+  }
+  else
+  {
+    ftp_reply(sess, FTP_BADCMD, "Unknown SITE command.");
+  }
 }
 
 void do_syst(session_t *sess)
@@ -1069,7 +1094,39 @@ void do_size(session_t *sess)
 
 void do_stat(session_t *sess)
 {
-  
+  ftp_lreply(sess, FTP_STATOK, "FTP server status:");
+  if(sess->bw_upload_rate_max == 0)               //上传速度
+  {
+    char *text = "     No session upload bandwidth limit\r\n";
+    writen(sess->ctrl_fd, text, strlen(text));
+  }
+  else if(sess->bw_upload_rate_max > 0)
+  {
+    char text[1024] = {0};
+    sprintf(text, "     Session upload bandwidth limit in byte/s is %u\r\n", 
+            sess->bw_upload_rate_max);
+    writen(sess->ctrl_fd, text, strlen(text));
+  }
+
+  if (sess->bw_download_rate_max == 0)            //下载速度
+  {
+    char *text = "     No session download bandwidth limit\r\n";
+    writen(sess->ctrl_fd, text, strlen(text));
+  }
+  else if (sess->bw_download_rate_max > 0)
+  {
+    char text[1024] = {0};
+    sprintf(text, "     Session download bandwidth limit in byte/s is %u\r\n",
+            sess->bw_download_rate_max);
+    writen(sess->ctrl_fd, text, strlen(text));
+  }
+
+  char text[1024] = {0};
+  sprintf(text, "     At session startup, client count was %u\r\n",
+          sess->num_clients);
+  writen(sess->ctrl_fd, text, strlen(text));
+
+  ftp_reply(sess, FTP_STATOK, "End of status");  
 }
 
 void do_noop(session_t *sess)
@@ -1079,4 +1136,62 @@ void do_noop(session_t *sess)
 
 void do_help(session_t *sess)
 {
+  char *str1 = " ABOR ACCT ALLO APPE CDUP CWD  DELE EPRT EPSV FEAT HELP LIST MDTM MKD\r\n";
+  char *str2 = " MODE NLST NOOP OPTS PASS PASV PORT PWD  QUIT REIN REST RETR RMD  RNFR\r\n";
+  char *str3 = " RNTO SITE SIZE SMNT STAT STOR STOU STRU SYST TYPE USER XCUP XCWD XMKD\r\n";
+  char *str4 = " XPWD XRMD\r\n";
+
+  ftp_lreply(sess, FTP_HELP, "The following commands are recognized.");
+  writen(sess->ctrl_fd, str1, strlen(str1));
+  writen(sess->ctrl_fd, str2, strlen(str2));
+  writen(sess->ctrl_fd, str3, strlen(str3));
+  writen(sess->ctrl_fd, str4, strlen(str4));
+  ftp_reply(sess, FTP_HELP, "Help OK.");
+}
+
+static void do_site_chmod(session_t *sess, char *chmod_arg)
+{
+  if(strlen(chmod_arg) == 0)
+  {
+    ftp_reply(sess, FTP_BADCMD, "FTP SITE CHMOD needs 2 arguments.");
+    return;
+  }
+
+  char perm[100] = {0};
+  char file[100] = {0};
+  str_split(chmod_arg, perm, file, ' ');
+
+  if(strlen(file) == 0)
+  {
+    ftp_reply(sess, FTP_BADCMD, "FTP SITE CHMOD needs 2 arguments.");
+    return;
+  }
+  unsigned int mode = str_octal_to_uint(perm);
+
+  if(chmod(file, mode) < 0)
+  {
+    ftp_reply(sess, FTP_CHMODOK, "SITE CHMOD command failed.");
+  }
+  else
+  {
+    ftp_reply(sess, FTP_CHMODOK, "SITE CHMOD command ok.");
+  }
+}
+
+static void do_site_umask(session_t *sess, char *umask_arg)
+{
+  // SITE UMASK [umask]
+  char text[1024] = {0};
+  if (strlen(umask_arg) == 0)
+  {
+    sprintf(text, "Your current UMASK is 0%o", tunable_local_umask);
+    ftp_reply(sess, FTP_UMASKOK, text);
+  }
+  else
+  {
+    unsigned int um = str_octal_to_uint(umask_arg);
+    umask(um);
+    sprintf(text, "UMASK set to %o", um);
+    ftp_reply(sess, FTP_UMASKOK, text);    
+  }
 }

@@ -59,7 +59,9 @@ int main()
   // unsigned int str5_num = str_octal_to_uint(str5);
   // printf("%d\n", str5_num);
 
-  parseconf_load_file(MINIFTPD_CONF);                        //加载配置项
+  parseconf_load_file(MINIFTPD_CONF);           //加载配置项
+
+  daemon(0, 0);                                 //使 MINIFTPD 成为守护进程
 
   // printf("tunable_pasv_enable = %d\n", tunable_pasv_enable);
   // printf("tunable_port_enable = %d\n", tunable_port_enable);
@@ -181,7 +183,7 @@ void handle_sigchld(int sig)
     {
       continue;
     }
-    drop_ip_count(&ip);
+    drop_ip_count(ip);
     hash_free_entry(s_pid_ip_hash, &pid, sizeof(unsigned int));
   }
 }
@@ -201,7 +203,7 @@ unsigned int handle_ip_count(void *ip)
   {
     count = 1;
     hash_add_entry(s_ip_count_hash, ip, sizeof(unsigned int),
-                   &count, sizeof(unsigned int));
+                   &count, sizeof(count));
   }
   else
   {
@@ -217,7 +219,7 @@ void drop_ip_count(void *ip)
 {
   unsigned int count;
   unsigned int *p_count = (unsigned int *)hash_lookup_entry(s_ip_count_hash, 
-                                          &ip, sizeof(unsigned int));
+                                          ip, sizeof(unsigned int));
   if (p_count == NULL)
   {
     return;
@@ -233,6 +235,6 @@ void drop_ip_count(void *ip)
 
   if(count == 0)
   {
-    hash_free_entry(s_ip_count_hash, &ip, sizeof(unsigned int));
+    hash_free_entry(s_ip_count_hash, ip, sizeof(unsigned int));
   }
 }
