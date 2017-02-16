@@ -1,17 +1,17 @@
-// Edit by cuiyajun 2016-12-13
+ï»¿// Edit by cuiyajun 2016-12-13
 
 #if 0                                                        //advance
 
 template <typename InputIterator,typename Distance>
 void advance_II(InputIterator& i, Distance n)
 {
-    while (n--) ++i;               //µ¥Ïò£¬ÖğÒ»Ç°½ø
+    while (n--) ++i;               //å•å‘ï¼Œé€ä¸€å‰è¿›
 }
 
 template <typename BidirectionalIterator, typename Distance>
 void advance_BI(BidirectionalIterator& i, Distance n)
 {
-    if (n >= 0)                    //Ë«Ïò£¬ÖğÒ»Ç°½ø
+    if (n >= 0)                    //åŒå‘ï¼Œé€ä¸€å‰è¿›
         while (n--) ++i;
     else
         while (n++) --i;
@@ -20,7 +20,7 @@ void advance_BI(BidirectionalIterator& i, Distance n)
 template <typename RandomAccessIterator, typename Distance>
 void advance_RAI(RandomAccessIterator& i, Distance n)
 {
-    i += n;                        //Ëæ»ú£¬ÌøÔ¾Ç°½ø
+    i += n;                        //éšæœºï¼Œè·³è·ƒå‰è¿›
 }
 
 #endif
@@ -35,7 +35,7 @@ inline iterator_traits<InputIterator>::difference_type
 __distance(InputIterator first, InputIterator last, input_iterator_tag)
 {
     iterator_traits<InputIterator>::difference_type n = 0;
-    while (first != last)                                           //ÖğÒ»ÀÛ¼Æ¾àÀë
+    while (first != last)                                           //é€ä¸€ç´¯è®¡è·ç¦»
     {
         ++first; ++n;
     }
@@ -46,7 +46,7 @@ template <typename RandomAccessIterator>
 inline iterator_traits<RandomAccessIterator>::difference_type
 __distance(RandomAccessIterator first, RandomAccessIterator last, random_access_iterator_tag)
 {
-    return last - first;                                            //Ö±½Ó¼ÆËã
+    return last - first;                                            //ç›´æ¥è®¡ç®—
 }
 
 template <typename InputIterator>
