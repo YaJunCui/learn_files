@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <errno.h>
 #include <libgen.h>
 
 static int stop = 0;
@@ -48,10 +49,20 @@ int main(int argc, char *argv[])
   ret = listen(sock, backlog);
   assert(ret != -1);
 
-  //循环等待连接，直到SIGTERM信号中断
-  while (!stop)
+  sleep(20);
+
+  struct sockaddr_in client;
+  socklen_t client_length = sizeof(client);
+
+  int conn_fd = accept(sock, (struct sockaddr*)&client, &client_length);
+
+  if(conn_fd == -1)
   {
-    sleep(1);
+    printf("errno is: %d\n", errno);
+  }
+  else
+  {
+    printf("connected with ip: %s and port: %d\n", inet_ntoa(client.sin_addr), ntohs(client.sin_port));
   }
 
   //关闭socket
