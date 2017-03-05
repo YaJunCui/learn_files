@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 
     memset(buffer, '\0', BUF_SIZE);
     ret = recv(conn_fd, buffer, BUF_SIZE, MSG_OOB);
-    printf("get %d bytes of normal data '%s'\n", ret, buffer);
+    printf("get %d bytes of oob data '%s'\n", ret, buffer);
 
     memset(buffer, '\0', BUF_SIZE);
     ret = recv(conn_fd, buffer, BUF_SIZE, 0);
