@@ -3,11 +3,19 @@
 
 import random
 
+print "*************************************"
+num = raw_input("请输入一个0到9的数字：\n")
+
+if not num.isdigit():
+    print "请输入一个整数"
+elif int(num) < 0 or int(num) > 9:
+    print "请输入一个0-9的数字！"
+else:
+    pass
+
+num = int(num)
 i = 0
 while i < 4:
-    print "*************************************"
-    num = int(raw_input("请输入一个0到9的数字：\n"))
-
     xnum = random.randint(0,9)
 
     if num == xnum:
