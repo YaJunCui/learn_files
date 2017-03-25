@@ -18,13 +18,13 @@ while i < 4:
         continue
     else:
         pass
-    num = int(num)
-    if num == xnum:
+    
+    if int(num) == xnum:
         print "恭喜你！猜中了"
         break
-    elif num < xnum:
-        print "你猜小了，正确答案是：{}，你还有{}次机会。".format(xnum, 3-i)
+    elif int(num) < xnum:
+        print "你猜小了，你还有{}次机会。".format(xnum, 3-i)
     else:
-        print "你猜大了，正确答案是：{}，你还有{}次机会。".format(xnum, 3-i)
+        print "你猜大了，你还有{}次机会。".format(xnum, 3-i)
     
     i += 1
