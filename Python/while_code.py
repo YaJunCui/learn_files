@@ -1,5 +1,8 @@
-#! /usr/bin/env python
 # coding:utf-8
+
+"""
+learning
+"""
 
 import random
 
@@ -18,7 +21,7 @@ while i < 4:
         continue
     else:
         pass
-    
+
     if int(num) == xnum:
         print "恭喜你！猜中了"
         break
@@ -26,5 +29,5 @@ while i < 4:
         print "你猜小了，你还有{}次机会。".format(xnum, 3-i)
     else:
         print "你猜大了，你还有{}次机会。".format(xnum, 3-i)
-    
+
     i += 1
