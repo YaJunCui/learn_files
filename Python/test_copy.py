@@ -13,13 +13,19 @@ class MyCopy(object):
 foo = MyCopy(7)
 
 a = ["foo", foo]
-print id(a)
+print "id(a) = ", id(a)
 
 b = a[:]
-i
+print "id(b) = ", id(b)
+
 c = list(a)
+print "id(c) = ", id(c)
+
 d = copy.copy(a)
+print "id(d) = ", id(d)
+
 e = copy.deepcopy(a)
+print "id(e) = ", id(e)
 
 a.append("abc")
 foo.value = 88
