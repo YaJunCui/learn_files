@@ -3,6 +3,6 @@
 
 import tornado.web
 
-class IndexHeader(tornado.web.RequestHandler):
+class IndexHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("index.html")

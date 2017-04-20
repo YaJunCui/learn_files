@@ -12,6 +12,6 @@ settings = dict(
 )
 
 application = tornado.web.Application(
-  handler = url,
+  handlers = url,
   **settings
 )
