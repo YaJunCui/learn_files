@@ -3,6 +3,7 @@ ipch/
 .vscode/
 Debug/
 Release/
+venv/
 
 # 忽略的文件
 *.sdf
