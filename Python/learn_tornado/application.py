@@ -8,7 +8,9 @@ import os
 
 settings = dict(
   template_path = os.path.join(os.path.dirname(__file__), "templates"),
-  static_path = os.path.join(os.path.dirname(__file__), "statics")
+  static_path = os.path.join(os.path.dirname(__file__), "statics"),
+  cookie_secret = "bhjbjmnz/gheksmvlkajrgfmds/mbakherjkgnakngkjes=",
+  login_url = '/',
 )
 
 application = tornado.web.Application(
