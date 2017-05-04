@@ -1,4 +1,11 @@
 'use strict'
 
-var abc = 'Hello World';
-alert(abc);
+var age = 20;
+
+if (age >= 6) {
+    alert('teenager');
+} else if (age >= 18) {
+    alert('adult');
+} else {
+    alert('kid');
+}
