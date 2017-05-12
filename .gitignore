@@ -4,6 +4,7 @@ ipch/
 Debug/
 Release/
 venv/
+.vs/
 
 # 忽略的文件
 *.sdf
