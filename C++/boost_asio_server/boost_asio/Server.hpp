@@ -87,7 +87,7 @@ private:
 
 private:
   io_service& m_ios;
-  tcp::acceptor m_acceptor;    boost::unordered_map<int, std::shared_ptr<RWHandler>> m_handlers;
-
+  tcp::acceptor m_acceptor;   
+  boost::unordered_map<int, std::shared_ptr<RWHandler>> m_handlers;
   list<int> m_cnnIdPool;
 };
